@@ -1,2 +1,2 @@
 # vocab
-An webiste app to help enrich my vocabulary
+An webiste app to help enriching my vocabulary
