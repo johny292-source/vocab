@@ -473,9 +473,9 @@
       });
     }
 
-    async function processBatchText() {
+   async function processBatchText() {
       const text = document.getElementById('batch-text-input').value.trim();
-      if (!text) return;
+      if (!text) { alert('請輸入逐字稿或文章內容！'); return; }
       if (!appData.apiKey) { alert('請先填入 Gemini API Key！'); openSettingsModal(); return; }
 
       const btn = document.getElementById('btn-process-batch');
@@ -483,7 +483,7 @@
       btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin mr-2"></i> AI 分析逐字稿中...`;
 
       try {
-        const prompt = `請分析以下英文逐字稿/文章，挑選出 3~5 個最值得學習的中高級關鍵單字。請為每個單字生成繁體中文學習資料，嚴格回傳 JSON 陣列 (Array of Objects)，每個 Object 包含欄位：
+        const prompt = `請分析以下英文逐字稿/文章，挑選出 3~5 個最值得學習的中高級關鍵單字。請為每個單字生成繁體中文學習資料，嚴格回傳標準 JSON 陣列 (Array of Objects)，不要加入 markdown 程式碼區塊標記，每個 Object 包含欄位：
         word, type, meaning, synonyms (1-2個), phrases (1-2個), sentence (優先使用原文章上下文或高頻例句), translation
         
         逐字稿內容：
@@ -497,6 +497,33 @@
             generationConfig: { responseMimeType: "application/json" }
           })
         });
+
+        const data = await response.json();
+
+        // 若 API 回傳 HTTP 錯誤，顯示具體的錯誤訊息
+        if (!response.ok) {
+          const errorMsg = data.error?.message || response.statusText || '未知 API 錯誤';
+          throw new Error(`API 請求失敗 (${response.status}): ${errorMsg}`);
+        }
+
+        if (!data.candidates || !data.candidates[0]?.content?.parts[0]?.text) {
+          throw new Error('AI 未能正常產生單字資料，請重試');
+        }
+
+        let rawText = data.candidates[0].content.parts[0].text;
+        // 清除 markdown 區塊標記
+        rawText = rawText.replace(/```json/g, '').replace(/```/g, '').trim();
+
+        extractedBatchWords = JSON.parse(rawText);
+        renderBatchPreview();
+      } catch (err) {
+        console.error('Batch Extract Error:', err);
+        alert('批次分析 failure: ' + err.message);
+      } finally {
+        btn.disabled = false;
+        btn.innerHTML = `<i class="fa-solid fa-magnifying-glass-plus mr-2"></i> AI 分析並提取關鍵單字`;
+      }
+    }
 
         if (!response.ok) throw new Error('批次提取失敗');
         const data = await response.json();
