@@ -569,21 +569,32 @@
       }
     }
 
-    async function fetchWordDetailsFromAI(word) {
-      const prompt = `請針對英文單字 "${word}" 提供繁體中文學習資訊。必須回傳標準 JSON 格式（不要加上 markdown 區塊），包含欄位：
-      type (詞性), meaning (中文釋義), synonyms (1-2個同義詞), phrases (1-2個片語), sentence (高頻自然例句), translation (例句中文翻譯)`;
+   async function fetchWordDetailsFromAI(word) {
+      // 縮減提示詞，讓 AI 不用想太多，秒速回傳 JSON
+      const prompt = `分析英文單字 "${word}"。嚴格回傳標準 JSON：
+      {"type":"詞性","meaning":"中文釋義","synonyms":"1-2個同義詞","phrases":"1-2個片語","sentence":"短英文例句","translation":"例句翻譯"}`;
 
       const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.8-flash:generateContent?key=${appData.apiKey}`;
+      
       const response = await fetch(url, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }], generationConfig: { responseMimeType: "application/json" } })
+        body: JSON.stringify({
+          contents: [{ parts: [{ text: prompt }] }],
+          generationConfig: { 
+            responseMimeType: "application/json",
+            temperature: 0.1 // 降低隨機性，加快 AI 決定答案的速度
+          }
+        })
       });
 
       const data = await response.json();
       if (!response.ok) throw new Error(data.error?.message || 'API 請求失敗');
-      let rawText = data.candidates[0].content.parts[0].text.replace(/```json/g, '').replace(/```/g, '').trim();
+
+      let rawText = data.candidates[0].content.parts[0].text;
+      rawText = rawText.replace(/```json/g, '').replace(/```/g, '').trim();
       return JSON.parse(rawText);
+
     }
 
     // --- 批次單字手動輸入 ---
