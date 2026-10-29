@@ -500,8 +500,14 @@
 
         if (!response.ok) throw new Error('批次提取失敗');
         const data = await response.json();
-        extractedBatchWords = JSON.parse(data.candidates[0].content.parts[0].text);
+        let rawText = data.candidates[0].content.parts[0].text;
+        
+        // 🔒 安全處理：移除 AI 有時候會自動多加的 Markdown 程式碼區塊標記 (```json ... ```)
+        rawText = rawText.replace(/```json/g, '').replace(/```/g, '').trim();
+        
+        extractedBatchWords = JSON.parse(rawText);
         renderBatchPreview();
+        
       } catch (err) {
         alert('批次分析 failure: ' + err.message);
       } finally {
