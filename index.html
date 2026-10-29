@@ -104,7 +104,7 @@
           <h2 class="text-xl font-bold text-slate-900 flex items-center">
             <i class="fa-solid fa-wand-magic-sparkles text-indigo-600 mr-2"></i> YouTube / 逐字稿智慧提取
           </h2>
-          <p class="text-sm text-slate-500 mt-1">貼上文章或字幕，AI 將依長度動態調整擷取數量（中高級詞彙），且**例句嚴格取自原文上下文**。</p>
+          <p class="text-sm text-slate-500 mt-1">貼上文章或字幕，AI 將依長度動態調整擷取數量（中高級詞彙），且例句嚴格取自原文上下文。</p>
         </div>
 
         <div>
@@ -321,6 +321,23 @@
     let reviewQueue = [];
     let reviewIndex = 0;
     let wordToMoveId = null;
+
+    // 核心工具：帶有超時控制的安全的 API fetch 封裝（避免卡死）
+    async function fetchWithTimeout(url, options, timeoutMs = 15000) {
+      const controller = new AbortController();
+      const id = setTimeout(() => controller.abort(), timeoutMs);
+      try {
+        const response = await fetch(url, { ...options, signal: controller.signal });
+        clearTimeout(id);
+        return response;
+      } catch (err) {
+        clearTimeout(id);
+        if (err.name === 'AbortError') {
+          throw new Error('API 請求超時（15秒未回應），請檢查 API Key 或網路環境！');
+        }
+        throw err;
+      }
+    }
 
     // --- 安全初始化 ---
     document.addEventListener('DOMContentLoaded', () => {
@@ -563,38 +580,31 @@
         input.value = '';
       } catch (err) {
         console.error(err);
-        alert('AI 生成失敗: ' + err.message);
+        alert('生成失敗: ' + err.message);
       } finally {
         if (btn) { btn.disabled = false; btn.innerHTML = `<i class="fa-solid fa-sparkles mr-2"></i> AI 自動生成並儲存`; }
       }
     }
 
-   async function fetchWordDetailsFromAI(word) {
-      // 縮減提示詞，讓 AI 不用想太多，秒速回傳 JSON
-      const prompt = `分析英文單字 "${word}"。嚴格回傳標準 JSON：
-      {"type":"詞性","meaning":"中文釋義","synonyms":"1-2個同義詞","phrases":"1-2個片語","sentence":"短英文例句","translation":"例句翻譯"}`;
+    async function fetchWordDetailsFromAI(word) {
+      const prompt = `針對英文單字 "${word}" 提供學習資訊。極速回傳標準 JSON：
+      {"type":"詞性縮寫","meaning":"中文釋義","synonyms":"1-2個同義詞","phrases":"1-2個片語","sentence":"簡短例句","translation":"例句翻譯"}`;
 
-      const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.8-flash:generateContent?key=${appData.apiKey}`;
+      const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${appData.apiKey}`;
       
-      const response = await fetch(url, {
+      const response = await fetchWithTimeout(url, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          contents: [{ parts: [{ text: prompt }] }],
-          generationConfig: { 
-            responseMimeType: "application/json",
-            temperature: 0.1 // 降低隨機性，加快 AI 決定答案的速度
-          }
+        body: JSON.stringify({ 
+          contents: [{ parts: [{ text: prompt }] }], 
+          generationConfig: { responseMimeType: "application/json" } 
         })
-      });
+      }, 15000); // 15秒超時強制中斷
 
       const data = await response.json();
-      if (!response.ok) throw new Error(data.error?.message || 'API 請求失敗');
-
-      let rawText = data.candidates[0].content.parts[0].text;
-      rawText = rawText.replace(/```json/g, '').replace(/```/g, '').trim();
+      if (!response.ok) throw new Error(data.error?.message || 'API 請求失敗，請檢查 Key');
+      let rawText = data.candidates[0].content.parts[0].text.replace(/```json/g, '').replace(/```/g, '').trim();
       return JSON.parse(rawText);
-
     }
 
     // --- 批次單字手動輸入 ---
@@ -608,7 +618,6 @@
       if (!rawText) { alert('請輸入單字列表！'); return; }
       if (!appData.apiKey) { alert('請先填入 Gemini API Key！'); openSettingsModal(); return; }
 
-      // 分割單字
       const wordList = rawText.split(/[\n,]+/).map(w => w.trim()).filter(w => w.length > 0);
       if (wordList.length === 0) return;
 
@@ -620,14 +629,14 @@
         單字列表：${wordList.join(', ')}
 
         必須嚴格回傳標準 JSON 陣列 (Array of Objects)，每個 Object 包含欄位：
-        word, type, meaning, synonyms (1-2個), phrases (1-2個), sentence, translation`;
+        word, type, meaning, synonyms, phrases, sentence, translation`;
 
-        const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.8-flash:generateContent?key=${appData.apiKey}`;
-        const response = await fetch(url, {
+        const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${appData.apiKey}`;
+        const response = await fetchWithTimeout(url, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }], generationConfig: { responseMimeType: "application/json" } })
-        });
+        }, 25000);
 
         const data = await response.json();
         if (!response.ok) throw new Error(data.error?.message || 'API 請求失敗');
@@ -685,21 +694,21 @@
       if (btn) { btn.disabled = true; btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin mr-2"></i> AI 分析逐字稿中...`; }
 
       try {
-        const prompt = `請分析以下英文逐字稿/文章。根據文章長度動態調整擷取數量（短篇擷取 3-5 個，長篇可擷取 8-15 個中高級關鍵單字）。
-        重點要點：例句 (sentence) 必須【嚴格完全使用逐字稿內的原文句子/上下文】，不要自行造句！
+        const prompt = `請分析以下英文逐字稿/文章，挑選適合學習的中高級關鍵單字。
+        例句 (sentence) 必須完全使用逐字稿內的原文句子！
         
-        請回傳標準 JSON 陣列，包含欄位：
-        word, type, meaning, synonyms (1-2個), phrases (1-2個), sentence (原文句子), translation (原文句子的中文翻譯)
+        請回傳標準 JSON 陣列：
+        word, type, meaning, synonyms, phrases, sentence, translation
         
         逐字稿內容：
         ${text}`;
 
-        const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.8-flash:generateContent?key=${appData.apiKey}`;
-        const response = await fetch(url, {
+        const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${appData.apiKey}`;
+        const response = await fetchWithTimeout(url, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }], generationConfig: { responseMimeType: "application/json" } })
-        });
+        }, 30000);
 
         const data = await response.json();
         if (!response.ok) throw new Error(data.error?.message || 'API 請求失敗');
@@ -824,17 +833,16 @@
         let nextInterval = 1;
 
         if (rating === 'again') {
-          nextInterval = 1; // 1 天後重來
+          nextInterval = 1;
           wordObj.repetitions = 0;
         } else if (rating === 'good') {
-          nextInterval = Math.max(2, Math.round(currentInterval * 1.8)); // 翻倍間隔
+          nextInterval = Math.max(2, Math.round(currentInterval * 1.8));
           wordObj.repetitions = (wordObj.repetitions || 0) + 1;
         } else if (rating === 'easy') {
-          nextInterval = Math.max(7, Math.round(currentInterval * 2.5)); // 拉長間隔
+          nextInterval = Math.max(7, Math.round(currentInterval * 2.5));
           wordObj.repetitions = (wordObj.repetitions || 0) + 1;
         }
 
-        // 計算下一次複習的日期 (YYYY-MM-DD)
         const nextDate = new Date();
         nextDate.setDate(nextDate.getDate() + nextInterval);
         wordObj.nextReviewDate = nextDate.toISOString().slice(0, 10);
