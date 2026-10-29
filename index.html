@@ -446,7 +446,7 @@
       - sentence: 包含該單字與片語的高頻自然英文例句
       - translation: 例句的繁體中文翻譯`;
 
-      const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${appData.apiKey}`;
+      const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${appData.apiKey}`;
       
       const response = await fetch(url, {
         method: 'POST',
@@ -494,7 +494,7 @@
         逐字稿內容：
         ${text}`;
 
-        const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${appData.apiKey}`;
+        const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${appData.apiKey}`;
 
         const response = await fetch(url, {
           method: 'POST',
