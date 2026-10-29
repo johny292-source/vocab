@@ -19,67 +19,65 @@
 <body class="bg-slate-50 text-slate-800 min-h-screen flex flex-col">
 
   <!-- 頂部導覽列 -->
-  <header class="bg-indigo-600 text-white shadow-lg">
-    <div class="max-w-6xl mx-auto px-4 py-4 flex justify-between items-center">
-      <div class="flex items-center space-x-3">
-        <i class="fa-solid fa-brain-circuit text-2xl text-amber-300"></i>
-        <h1 class="text-xl font-bold tracking-tight">VocabMaster</h1>
-      </div>
+  <header class="bg-indigo-600 text-white shadow-lg sticky top-0 z-40">
+    <div class="max-w-6xl mx-auto px-4 py-3 flex justify-between items-center">
       <div class="flex items-center space-x-2">
-        <button onclick="switchTab('notebooks')" id="tab-notebooks" class="px-3 py-1.5 rounded-lg text-sm font-medium bg-indigo-700 text-white shadow">
-          <i class="fa-solid fa-folder-open mr-1.5"></i>單字本
+        <i class="fa-solid fa-brain-circuit text-xl text-amber-300"></i>
+        <h1 class="text-lg font-bold tracking-tight">VocabMaster</h1>
+      </div>
+      <div class="flex items-center space-x-1.5 sm:space-x-2">
+        <button onclick="switchTab('notebooks')" id="tab-notebooks" class="px-2.5 py-1.5 rounded-lg text-xs sm:text-sm font-medium bg-indigo-700 text-white shadow">
+          <i class="fa-solid fa-folder-open mr-1"></i>單字本
         </button>
-        <button onclick="switchTab('batch')" id="tab-batch" class="px-3 py-1.5 rounded-lg text-sm font-medium text-indigo-100 hover:bg-indigo-700 transition">
-          <i class="fa-solid fa-wand-magic-sparkles mr-1.5"></i>逐字稿批次提取
+        <button onclick="switchTab('batch')" id="tab-batch" class="px-2.5 py-1.5 rounded-lg text-xs sm:text-sm font-medium text-indigo-100 hover:bg-indigo-700 transition">
+          <i class="fa-solid fa-wand-magic-sparkles mr-1"></i>逐字稿提取
         </button>
-        <button onclick="openSettingsModal()" class="px-3 py-1.5 rounded-lg text-sm font-medium text-indigo-100 hover:bg-indigo-700 transition">
+        <button onclick="openSettingsModal()" class="px-2.5 py-1.5 rounded-lg text-xs sm:text-sm font-medium text-indigo-100 hover:bg-indigo-700 transition">
           <i class="fa-solid fa-gear mr-1"></i>設定
         </button>
       </div>
     </div>
   </header>
 
-  <main class="max-w-6xl mx-auto px-4 py-6 flex-grow w-full">
+  <main class="max-w-6xl mx-auto px-3 sm:px-4 py-4 sm:py-6 flex-grow w-full">
 
     <!-- 頁面一：單字本管理與單字卡清單 -->
-    <section id="sec-notebooks" class="space-y-6">
+    <section id="sec-notebooks" class="space-y-4 sm:space-y-6">
       
       <!-- 單字本選擇區與功能按鈕 -->
-      <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-white p-4 rounded-xl shadow-sm border border-slate-200">
-        <div class="flex items-center space-x-2 overflow-x-auto py-1" id="notebook-tabs-container">
+      <div class="flex flex-col md:flex-row md:items-center justify-between gap-3 bg-white p-3.5 sm:p-4 rounded-xl shadow-sm border border-slate-200">
+        <div class="flex items-center space-x-2 overflow-x-auto py-1 scrollbar-none" id="notebook-tabs-container">
           <!-- 動態生成單字本按鈕 -->
         </div>
         <div class="flex items-center space-x-2 shrink-0">
-          <button onclick="openBatchWordsModal()" class="px-3 py-2 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 text-sm font-semibold rounded-lg transition flex items-center border border-indigo-200">
-            <i class="fa-solid fa-list-check mr-1.5"></i> 批次單字輸入
+          <button onclick="openBatchWordsModal()" class="flex-1 sm:flex-none px-3 py-2 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 text-xs sm:text-sm font-semibold rounded-lg transition border border-indigo-200">
+            <i class="fa-solid fa-list-check mr-1"></i> 批次單字
           </button>
-          <button onclick="openCreateNotebookModal()" class="px-3 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 text-sm font-semibold rounded-lg transition flex items-center">
-            <i class="fa-solid fa-plus mr-1"></i> 新增單字本
+          <button onclick="openCreateNotebookModal()" class="flex-1 sm:flex-none px-3 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs sm:text-sm font-semibold rounded-lg transition">
+            <i class="fa-solid fa-plus mr-1"></i> 新增
           </button>
-          <button onclick="startReview()" class="px-4 py-2 bg-amber-500 hover:bg-amber-600 text-white text-sm font-semibold rounded-lg shadow transition flex items-center">
-            <i class="fa-solid fa-layer-group mr-1.5"></i> 艾賓豪斯複習 (<span id="due-review-count">0</span>)
+          <button onclick="startReview()" class="flex-1 sm:flex-none px-3.5 py-2 bg-amber-500 hover:bg-amber-600 text-white text-xs sm:text-sm font-semibold rounded-lg shadow transition">
+            <i class="fa-solid fa-layer-group mr-1"></i> 複習 (<span id="due-review-count">0</span>)
           </button>
         </div>
       </div>
 
       <!-- 單字本標題列 & 快速單字輸入 -->
-      <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200 space-y-4">
+      <div class="bg-white p-4 sm:p-6 rounded-xl shadow-sm border border-slate-200 space-y-3 sm:space-y-4">
         <div class="flex justify-between items-center">
-          <h2 id="current-notebook-title" class="text-xl font-bold text-slate-900 flex items-center">
+          <h2 id="current-notebook-title" class="text-lg sm:text-xl font-bold text-slate-900 flex items-center">
             <i class="fa-solid fa-book text-indigo-600 mr-2"></i> 預設收集箱
           </h2>
-          <div class="flex items-center space-x-2">
-            <span id="current-notebook-count" class="text-sm font-medium bg-indigo-50 text-indigo-700 px-3 py-1 rounded-full">0 個單字</span>
-          </div>
+          <span id="current-notebook-count" class="text-xs sm:text-sm font-medium bg-indigo-50 text-indigo-700 px-2.5 py-1 rounded-full">0 個單字</span>
         </div>
 
-        <!-- 快速新增單字輸入框 -->
-        <div class="pt-2">
-          <label class="block text-sm font-medium text-slate-700 mb-1">快速單字輸入（AI 自動補齊釋義、同義詞、片語與例句）</label>
+        <!-- 快速新增單字輸入框 (手機防超格優化) -->
+        <div>
+          <label class="block text-xs sm:text-sm font-medium text-slate-700 mb-1">快速新增單字（支援離線儲存與 AI 補齊）</label>
           <div class="flex gap-2">
-            <input type="text" id="quick-word-input" placeholder="輸入單字，例如: resilient, mitigate..." class="flex-grow px-4 py-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:outline-none">
-            <button onclick="autoAddWord()" id="btn-auto-add" class="px-5 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white font-medium rounded-lg shadow-sm transition flex items-center shrink-0">
-              <i class="fa-solid fa-sparkles mr-2"></i> AI 自動生成並儲存
+            <input type="text" id="quick-word-input" placeholder="輸入單字，例如: resilient..." class="flex-grow min-w-0 px-3 sm:px-4 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:outline-none">
+            <button onclick="autoAddWord()" id="btn-auto-add" class="px-3.5 sm:px-5 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-xs sm:text-sm font-semibold rounded-lg shadow-sm transition shrink-0 flex items-center">
+              <i class="fa-solid fa-sparkles mr-1.5"></i> AI生成
             </button>
           </div>
         </div>
@@ -87,9 +85,11 @@
 
       <!-- 單字卡清單列表 -->
       <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
-        <div class="p-4 border-b border-slate-200 bg-slate-50 flex justify-between items-center">
-          <h3 class="font-semibold text-slate-700">單字列表</h3>
-          <div class="text-xs text-slate-500">提示：點擊右側選單可移動單字至「記憶宮殿」</div>
+        <div class="p-3.5 sm:p-4 border-b border-slate-200 bg-slate-50 flex justify-between items-center flex-wrap gap-2">
+          <h3 class="font-semibold text-slate-700 text-sm sm:text-base">單字列表</h3>
+          <button onclick="fillPendingWords()" id="btn-fill-pending" class="text-xs px-2.5 py-1 bg-amber-50 text-amber-700 hover:bg-amber-100 border border-amber-200 font-semibold rounded-lg transition flex items-center">
+            <i class="fa-solid fa-bolt mr-1"></i> 一鍵補齊待生成單字
+          </button>
         </div>
         <div id="words-container" class="divide-y divide-slate-100">
           <!-- 動態生成單字項目 -->
@@ -98,43 +98,43 @@
     </section>
 
     <!-- 頁面二：YouTube/逐字稿 AI 批次提取與匯入 -->
-    <section id="sec-batch" class="hidden space-y-6">
-      <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200 space-y-4">
+    <section id="sec-batch" class="hidden space-y-4 sm:space-y-6">
+      <div class="bg-white p-4 sm:p-6 rounded-xl shadow-sm border border-slate-200 space-y-4">
         <div>
-          <h2 class="text-xl font-bold text-slate-900 flex items-center">
+          <h2 class="text-lg sm:text-xl font-bold text-slate-900 flex items-center">
             <i class="fa-solid fa-wand-magic-sparkles text-indigo-600 mr-2"></i> YouTube / 逐字稿智慧提取
           </h2>
-          <p class="text-sm text-slate-500 mt-1">貼上文章或字幕，AI 將依長度動態調整擷取數量（中高級詞彙），且例句嚴格取自原文上下文。</p>
+          <p class="text-xs sm:text-sm text-slate-500 mt-1">貼上文章或字幕，AI 將依長度動態調整擷取數量，且例句嚴格取自原文上下文。</p>
         </div>
 
         <div>
-          <label class="block text-sm font-medium text-slate-700 mb-1">目標儲存單字本</label>
+          <label class="block text-xs sm:text-sm font-medium text-slate-700 mb-1">目標儲存單字本</label>
           <select id="batch-target-notebook" class="w-full md:w-64 px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:outline-none text-sm">
             <!-- 動態選項 -->
           </select>
         </div>
 
         <div>
-          <label class="block text-sm font-medium text-slate-700 mb-1">貼上英文逐字稿 / 文章內容</label>
-          <textarea id="batch-text-input" rows="8" placeholder="將影片字幕或文章段落貼於此..." class="w-full p-4 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:outline-none text-sm"></textarea>
+          <label class="block text-xs sm:text-sm font-medium text-slate-700 mb-1">貼上英文逐字稿 / 文章內容</label>
+          <textarea id="batch-text-input" rows="6" placeholder="將影片字幕或文章段落貼於此..." class="w-full p-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:outline-none text-sm"></textarea>
         </div>
 
         <div class="flex justify-end">
-          <button onclick="processBatchText()" id="btn-process-batch" class="px-6 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white font-medium rounded-lg shadow transition flex items-center">
-            <i class="fa-solid fa-magnifying-glass-plus mr-2"></i> AI 分析並提取關鍵單字
+          <button onclick="processBatchText()" id="btn-process-batch" class="w-full sm:w-auto px-5 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white text-xs sm:text-sm font-semibold rounded-lg shadow transition flex items-center justify-center">
+            <i class="fa-solid fa-magnifying-glass-plus mr-1.5"></i> AI提取
           </button>
         </div>
       </div>
 
       <!-- 提取預覽區 -->
-      <div id="batch-results-wrapper" class="hidden bg-white p-6 rounded-xl shadow-sm border border-slate-200 space-y-4">
+      <div id="batch-results-wrapper" class="hidden bg-white p-4 sm:p-6 rounded-xl shadow-sm border border-slate-200 space-y-4">
         <div class="flex justify-between items-center border-b pb-3">
-          <h3 class="font-bold text-slate-800">AI 提取單字預覽 (已擷取原文例句)</h3>
-          <button onclick="confirmBatchImport()" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-semibold rounded-lg shadow transition flex items-center">
-            <i class="fa-solid fa-file-import mr-1.5"></i> 匯入勾選單字至單字本
+          <h3 class="font-bold text-slate-800 text-sm sm:text-base">AI 提取預覽</h3>
+          <button onclick="confirmBatchImport()" class="px-3.5 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white text-xs sm:text-sm font-semibold rounded-lg shadow transition">
+            匯入勾選單字
           </button>
         </div>
-        <div id="batch-preview-list" class="space-y-3">
+        <div id="batch-preview-list" class="space-y-2.5">
           <!-- 動態生成的預覽單字 -->
         </div>
       </div>
@@ -144,63 +144,68 @@
 
   <!-- 彈出視窗：批次單字手動輸入 -->
   <div id="modal-batch-words" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm hidden flex items-center justify-center p-4 z-50">
-    <div class="bg-white rounded-2xl max-w-lg w-full p-6 shadow-2xl space-y-4">
+    <div class="bg-white rounded-2xl max-w-lg w-full p-5 sm:p-6 shadow-2xl space-y-4">
       <div class="flex justify-between items-center border-b pb-3">
-        <h3 class="font-bold text-slate-900 text-lg flex items-center">
+        <h3 class="font-bold text-slate-900 text-base sm:text-lg flex items-center">
           <i class="fa-solid fa-list-check text-indigo-600 mr-2"></i> 批次單字輸入
         </h3>
         <button onclick="closeBatchWordsModal()" class="text-slate-400 hover:text-slate-600"><i class="fa-solid fa-xmark text-xl"></i></button>
       </div>
       <div>
-        <label class="block text-sm font-medium text-slate-700 mb-1">請貼上英文單字列表（可用逗號、換行或空格隔開）</label>
-        <textarea id="batch-words-list-input" rows="6" placeholder="例如:&#10;resilient&#10;mitigate&#10;ephemeral, ubiquitous" class="w-full p-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:outline-none text-sm"></textarea>
+        <label class="block text-xs sm:text-sm font-medium text-slate-700 mb-1">請貼上英文單字列表（可用逗號或換行隔開）</label>
+        <textarea id="batch-words-list-input" rows="5" placeholder="例如:&#10;resilient&#10;mitigate, ephemeral" class="w-full p-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:outline-none text-sm"></textarea>
       </div>
       <div class="flex justify-end space-x-2 pt-2">
-        <button onclick="closeBatchWordsModal()" class="px-4 py-2 text-slate-600 hover:bg-slate-100 text-sm font-medium rounded-lg">取消</button>
-        <button onclick="processBatchSingleWords()" id="btn-process-batch-words" class="px-5 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-medium rounded-lg shadow">AI 批量解析並匯入</button>
+        <button onclick="closeBatchWordsModal()" class="px-3.5 py-2 text-slate-600 hover:bg-slate-100 text-xs sm:text-sm font-medium rounded-lg">取消</button>
+        <button onclick="processBatchSingleWords()" id="btn-process-batch-words" class="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-xs sm:text-sm font-medium rounded-lg shadow">AI解析</button>
       </div>
     </div>
   </div>
 
   <!-- 彈出視窗：單字移動/歸檔 -->
   <div id="modal-move-word" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm hidden flex items-center justify-center p-4 z-50">
-    <div class="bg-white rounded-2xl max-w-sm w-full p-6 shadow-2xl space-y-4">
-      <h3 class="font-bold text-slate-900 text-lg">移動單字至其他單字本</h3>
+    <div class="bg-white rounded-2xl max-w-sm w-full p-5 sm:p-6 shadow-2xl space-y-4">
+      <h3 class="font-bold text-slate-900 text-base sm:text-lg">移動單字至其他單字本</h3>
       <div>
-        <label class="block text-sm font-medium text-slate-700 mb-1">選擇目標單字本</label>
+        <label class="block text-xs sm:text-sm font-medium text-slate-700 mb-1">選擇目標單字本</label>
         <select id="move-target-notebook" class="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:outline-none text-sm">
           <!-- 動態選項 -->
         </select>
       </div>
       <div class="flex justify-end space-x-2 pt-2">
-        <button onclick="closeMoveWordModal()" class="px-4 py-2 text-slate-600 hover:bg-slate-100 text-sm font-medium rounded-lg">取消</button>
-        <button onclick="confirmMoveWord()" class="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-medium rounded-lg">確認移動</button>
+        <button onclick="closeMoveWordModal()" class="px-3.5 py-2 text-slate-600 hover:bg-slate-100 text-xs sm:text-sm font-medium rounded-lg">取消</button>
+        <button onclick="confirmMoveWord()" class="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-xs sm:text-sm font-medium rounded-lg">確認移動</button>
       </div>
     </div>
   </div>
 
-  <!-- 彈出視窗：設定 (API Key 與備份) -->
+  <!-- 彈出視窗：設定 (API Key, GitHub Token 與同步) -->
   <div id="modal-settings" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm hidden flex items-center justify-center p-4 z-50">
-    <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl space-y-5">
+    <div class="bg-white rounded-2xl max-w-md w-full p-5 sm:p-6 shadow-2xl space-y-4 overflow-y-auto max-h-[90vh]">
       <div class="flex justify-between items-center border-b pb-3">
-        <h3 class="font-bold text-slate-900 text-lg flex items-center">
-          <i class="fa-solid fa-gear text-indigo-600 mr-2"></i> 系統與 API 設定
+        <h3 class="font-bold text-slate-900 text-base sm:text-lg flex items-center">
+          <i class="fa-solid fa-gear text-indigo-600 mr-2"></i> 系統與 Gist 自動同步
         </h3>
         <button onclick="closeSettingsModal()" class="text-slate-400 hover:text-slate-600"><i class="fa-solid fa-xmark text-xl"></i></button>
       </div>
 
-      <div class="space-y-4">
+      <div class="space-y-3">
         <div>
-          <label class="block text-sm font-medium text-slate-700 mb-1">Gemini API Key</label>
-          <input type="password" id="setting-api-key" placeholder="AIzaSy..." class="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:outline-none text-sm">
-          <p class="text-xs text-slate-500 mt-1">請填入從 Google AI Studio 取得的 Gemini API 金鑰。</p>
+          <label class="block text-xs sm:text-sm font-medium text-slate-700 mb-1">Gemini API Key</label>
+          <input type="password" id="setting-api-key" placeholder="AIzaSy..." class="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:outline-none text-xs sm:text-sm">
         </div>
 
-        <div class="border-t pt-4">
-          <label class="block text-sm font-medium text-slate-700 mb-2">資料備份與匯出</label>
+        <div>
+          <label class="block text-xs sm:text-sm font-medium text-slate-700 mb-1">GitHub Personal Access Token (PAT)</label>
+          <input type="password" id="setting-github-token" placeholder="ghp_..." class="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:outline-none text-xs sm:text-sm">
+          <p class="text-[11px] text-slate-500 mt-1">勾選 `gist` 權限的 Token。填入後手機與電腦將自動全時雲端同步！</p>
+        </div>
+
+        <div class="border-t pt-3">
+          <label class="block text-xs sm:text-sm font-medium text-slate-700 mb-2">手動備份與匯入</label>
           <div class="flex gap-2">
             <button onclick="exportData()" class="flex-1 px-3 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold rounded-lg border border-slate-300 transition">
-              <i class="fa-solid fa-download mr-1"></i> 匯出完整 JSON
+              <i class="fa-solid fa-download mr-1"></i> 匯出 JSON
             </button>
             <label class="flex-1 px-3 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold rounded-lg border border-slate-300 transition text-center cursor-pointer">
               <i class="fa-solid fa-upload mr-1"></i> 匯入 JSON
@@ -211,78 +216,78 @@
       </div>
 
       <div class="flex justify-end pt-2">
-        <button onclick="saveSettings()" class="px-5 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-medium rounded-lg shadow">儲存設定</button>
+        <button onclick="saveSettings()" class="px-5 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-xs sm:text-sm font-medium rounded-lg shadow">儲存設定並同步</button>
       </div>
     </div>
   </div>
 
   <!-- 彈出視窗：新增單字本 -->
   <div id="modal-notebook" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm hidden flex items-center justify-center p-4 z-50">
-    <div class="bg-white rounded-2xl max-w-sm w-full p-6 shadow-2xl space-y-4">
-      <h3 class="font-bold text-slate-900 text-lg">新增單字本</h3>
+    <div class="bg-white rounded-2xl max-w-sm w-full p-5 sm:p-6 shadow-2xl space-y-4">
+      <h3 class="font-bold text-slate-900 text-base sm:text-lg">新增單字本</h3>
       <div>
-        <label class="block text-sm font-medium text-slate-700 mb-1">單字本名稱</label>
+        <label class="block text-xs sm:text-sm font-medium text-slate-700 mb-1">單字本名稱</label>
         <input type="text" id="new-notebook-name" placeholder="例如: 🏛️ 記憶宮殿, 🎬 YouTube觀影..." class="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:outline-none text-sm">
       </div>
       <div class="flex justify-end space-x-2 pt-2">
-        <button onclick="closeCreateNotebookModal()" class="px-4 py-2 text-slate-600 hover:bg-slate-100 text-sm font-medium rounded-lg">取消</button>
-        <button onclick="createNotebook()" class="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-medium rounded-lg">建立</button>
+        <button onclick="closeCreateNotebookModal()" class="px-3.5 py-2 text-slate-600 hover:bg-slate-100 text-xs sm:text-sm font-medium rounded-lg">取消</button>
+        <button onclick="createNotebook()" class="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-xs sm:text-sm font-medium rounded-lg">建立</button>
       </div>
     </div>
   </div>
 
   <!-- 彈出視窗：艾賓豪斯閃卡複習 -->
   <div id="modal-review" class="fixed inset-0 bg-slate-900/80 backdrop-blur-md hidden flex flex-col items-center justify-center p-4 z-50">
-    <div class="w-full max-w-lg flex justify-between items-center text-white mb-4">
-      <div class="text-sm font-medium" id="review-progress">卡片 1 / 10</div>
+    <div class="w-full max-w-lg flex justify-between items-center text-white mb-3">
+      <div class="text-xs sm:text-sm font-medium" id="review-progress">卡片 1 / 10</div>
       <button onclick="closeReviewModal()" class="text-slate-300 hover:text-white text-xl"><i class="fa-solid fa-xmark"></i></button>
     </div>
 
     <!-- 閃卡卡片主體 -->
-    <div onclick="flipCard()" class="card-flip w-full max-w-lg h-80 cursor-pointer">
+    <div onclick="flipCard()" class="card-flip w-full max-w-lg h-72 sm:h-80 cursor-pointer">
       <div id="review-card-inner" class="card-inner relative w-full h-full">
         <!-- 正面 -->
-        <div class="card-front absolute inset-0 bg-white rounded-2xl shadow-2xl p-8 flex flex-col justify-between items-center text-center border border-slate-200">
-          <div class="text-xs font-semibold text-indigo-500 tracking-wider uppercase">點擊翻卡查看詳細與評分</div>
+        <div class="card-front absolute inset-0 bg-white rounded-2xl shadow-2xl p-6 sm:p-8 flex flex-col justify-between items-center text-center border border-slate-200">
+          <div class="text-[11px] font-semibold text-indigo-500 tracking-wider uppercase">點擊翻卡查看詳細與評分</div>
           <div>
-            <div id="review-word" class="text-4xl font-extrabold text-slate-900 mb-2">Word</div>
-            <div id="review-synonyms" class="text-sm text-indigo-600 font-medium bg-indigo-50 px-3 py-1 rounded-full inline-block mt-2">Synonyms</div>
+            <div id="review-word" class="text-3xl sm:text-4xl font-extrabold text-slate-900 mb-2">Word</div>
+            <div id="review-synonyms" class="text-xs sm:text-sm text-indigo-600 font-medium bg-indigo-50 px-3 py-1 rounded-full inline-block mt-1">Synonyms</div>
           </div>
           <div class="text-xs text-slate-400">點擊任意處翻頁</div>
         </div>
         <!-- 背面 -->
-        <div class="card-back absolute inset-0 bg-indigo-900 text-white rounded-2xl shadow-2xl p-6 flex flex-col justify-between overflow-y-auto">
-          <div class="space-y-3">
+        <div class="card-back absolute inset-0 bg-indigo-900 text-white rounded-2xl shadow-2xl p-5 sm:p-6 flex flex-col justify-between overflow-y-auto">
+          <div class="space-y-2.5">
             <div class="flex justify-between items-baseline border-b border-indigo-800 pb-2">
-              <span id="review-word-back" class="text-2xl font-bold">Word</span>
-              <span id="review-meaning" class="text-amber-300 font-medium">釋義</span>
+              <span id="review-word-back" class="text-xl sm:text-2xl font-bold">Word</span>
+              <span id="review-meaning" class="text-amber-300 font-medium text-xs sm:text-sm">釋義</span>
             </div>
             <div>
-              <div class="text-xs text-indigo-300 font-semibold mb-1">常用片語</div>
-              <div id="review-phrases" class="text-sm text-indigo-100 font-medium">Phrases</div>
+              <div class="text-[11px] text-indigo-300 font-semibold mb-0.5">常用片語</div>
+              <div id="review-phrases" class="text-xs sm:text-sm text-indigo-100 font-medium">Phrases</div>
             </div>
             <div>
-              <div class="text-xs text-indigo-300 font-semibold mb-1">情境例句</div>
-              <div id="review-sentence" class="text-sm italic text-slate-200">Sentence</div>
-              <div id="review-translation" class="text-xs text-slate-400 mt-1">Translation</div>
+              <div class="text-[11px] text-indigo-300 font-semibold mb-0.5">情境例句</div>
+              <div id="review-sentence" class="text-xs sm:text-sm italic text-slate-200">Sentence</div>
+              <div id="review-translation" class="text-[11px] text-slate-400 mt-0.5">Translation</div>
             </div>
           </div>
-          <div class="text-center text-xs text-indigo-300 pt-2 border-t border-indigo-800">請在下方選擇熟悉度評分</div>
+          <div class="text-center text-[11px] text-indigo-300 pt-2 border-t border-indigo-800">請在下方選擇熟悉度評分</div>
         </div>
       </div>
     </div>
 
     <!-- SRS 熟悉度評分按鈕 -->
-    <div id="srs-buttons" class="hidden flex space-x-3 mt-6 w-full max-w-lg">
-      <button onclick="handleSRS('again')" class="flex-1 py-3 bg-rose-600 hover:bg-rose-700 text-white text-sm font-bold rounded-xl shadow transition flex flex-col items-center">
+    <div id="srs-buttons" class="hidden flex space-x-2.5 sm:space-x-3 mt-4 sm:mt-6 w-full max-w-lg">
+      <button onclick="handleSRS('again')" class="flex-1 py-2.5 sm:py-3 bg-rose-600 hover:bg-rose-700 text-white text-xs sm:text-sm font-bold rounded-xl shadow transition flex flex-col items-center">
         <span>🔴 重來</span>
         <span class="text-[10px] font-normal opacity-80">1 天後</span>
       </button>
-      <button onclick="handleSRS('good')" class="flex-1 py-3 bg-amber-500 hover:bg-amber-600 text-white text-sm font-bold rounded-xl shadow transition flex flex-col items-center">
+      <button onclick="handleSRS('good')" class="flex-1 py-2.5 sm:py-3 bg-amber-500 hover:bg-amber-600 text-white text-xs sm:text-sm font-bold rounded-xl shadow transition flex flex-col items-center">
         <span>🟡 良好</span>
         <span class="text-[10px] font-normal opacity-80">天數翻倍</span>
       </button>
-      <button onclick="handleSRS('easy')" class="flex-1 py-3 bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-bold rounded-xl shadow transition flex flex-col items-center">
+      <button onclick="handleSRS('easy')" class="flex-1 py-2.5 sm:py-3 bg-emerald-600 hover:bg-emerald-700 text-white text-xs sm:text-sm font-bold rounded-xl shadow transition flex flex-col items-center">
         <span>🟢 簡單</span>
         <span class="text-[10px] font-normal opacity-80">7+ 天後</span>
       </button>
@@ -293,6 +298,8 @@
     // --- 全域資料結構狀態 ---
     let appData = {
       apiKey: '',
+      githubToken: '',
+      gistId: '',
       activeNotebookId: 'default',
       notebooks: [
         { id: 'default', name: '📥 預設收集箱' },
@@ -307,12 +314,13 @@
           type: 'adj.',
           meaning: '有韌性的；適應力強的',
           synonyms: 'flexible, tough',
-          phrases: 'stay resilient, highly resilient',
+          phrases: 'stay resilient',
           sentence: 'Local businesses proved remarkably resilient during the crisis.',
           translation: '當地企業在危機期間展現出非凡的韌性。',
           nextReviewDate: new Date().toISOString().slice(0, 10),
           interval: 1,
-          repetitions: 0
+          repetitions: 0,
+          status: 'ready'
         }
       ]
     };
@@ -322,7 +330,7 @@
     let reviewIndex = 0;
     let wordToMoveId = null;
 
-    // 核心工具：帶有超時控制的安全的 API fetch 封裝（避免卡死）
+    // 核心工具：帶有超時控制的 API Fetch
     async function fetchWithTimeout(url, options, timeoutMs = 15000) {
       const controller = new AbortController();
       const id = setTimeout(() => controller.abort(), timeoutMs);
@@ -332,17 +340,18 @@
         return response;
       } catch (err) {
         clearTimeout(id);
-        if (err.name === 'AbortError') {
-          throw new Error('API 請求超時（15秒未回應），請檢查 API Key 或網路環境！');
-        }
+        if (err.name === 'AbortError') throw new Error('API 請求超時，請檢查 API Key 或網路環境！');
         throw err;
       }
     }
 
     // --- 安全初始化 ---
-    document.addEventListener('DOMContentLoaded', () => {
+    document.addEventListener('DOMContentLoaded', async () => {
       try {
         loadLocalStorage();
+        if (appData.githubToken) {
+          await syncFromGist(); // 初始化時從 GitHub Gist 下載最新資料
+        }
         renderNotebookTabs();
         renderWords();
         updateDueReviewCount();
@@ -351,14 +360,15 @@
       }
     });
 
-    // --- 本地儲存 (LocalStorage) ---
+    // --- 本地與 Gist 雲端同步 ---
     function saveLocalStorage() {
       try {
         localStorage.setItem('vocabmaster_data', JSON.stringify(appData));
         updateDueReviewCount();
-      } catch (e) {
-        console.error("Save Error:", e);
-      }
+        if (appData.githubToken) {
+          syncToGist(); // 靜默背景上傳至 Gist
+        }
+      } catch (e) { console.error("Save Error:", e); }
     }
 
     function loadLocalStorage() {
@@ -366,18 +376,61 @@
       if (saved) {
         try {
           const parsed = JSON.parse(saved);
-          if (parsed && parsed.notebooks && parsed.words) {
-            appData = parsed;
-          }
-        } catch (e) {
-          console.error("Parse Error:", e);
-        }
+          if (parsed && parsed.notebooks && parsed.words) appData = parsed;
+        } catch (e) { console.error("Parse Error:", e); }
       }
-      const apiKeyInput = document.getElementById('setting-api-key');
-      if (apiKeyInput) apiKeyInput.value = appData.apiKey || '';
+      document.getElementById('setting-api-key').value = appData.apiKey || '';
+      document.getElementById('setting-github-token').value = appData.githubToken || '';
     }
 
-    // --- 計算到期複習數量 ---
+    // Gist 上傳與下載 API
+    async function syncToGist() {
+      if (!appData.githubToken) return;
+      const fileName = "vocabmaster_database.json";
+      const content = JSON.stringify(appData, null, 2);
+
+      try {
+        if (!appData.gistId) {
+          // 建立新 Gist
+          const res = await fetch('https://api.github.com/gists', {
+            method: 'POST',
+            headers: { 'Authorization': `token ${appData.githubToken}`, 'Content-Type': 'application/json' },
+            body: JSON.stringify({ description: "VocabMaster Cloud Database", public: false, files: { [fileName]: { content } } })
+          });
+          const data = await res.json();
+          if (data.id) { appData.gistId = data.id; localStorage.setItem('vocabmaster_data', JSON.stringify(appData)); }
+        } else {
+          // 更新已有 Gist
+          await fetch(`https://api.github.com/gists/${appData.gistId}`, {
+            method: 'PATCH',
+            headers: { 'Authorization': `token ${appData.githubToken}`, 'Content-Type': 'application/json' },
+            body: JSON.stringify({ files: { [fileName]: { content } } })
+          });
+        }
+      } catch (err) { console.error("Gist Sync Error:", err); }
+    }
+
+    async function syncFromGist() {
+      if (!appData.githubToken) return;
+      try {
+        const res = await fetch('https://api.github.com/gists', {
+          headers: { 'Authorization': `token ${appData.githubToken}` }
+        });
+        const gists = await res.json();
+        const targetGist = gists.find(g => g.description === "VocabMaster Cloud Database");
+        if (targetGist && targetGist.files["vocabmaster_database.json"]) {
+          appData.gistId = targetGist.id;
+          const rawRes = await fetch(targetGist.files["vocabmaster_database.json"].raw_url);
+          const cloudData = await rawRes.json();
+          if (cloudData && cloudData.words) {
+            appData = cloudData;
+            localStorage.setItem('vocabmaster_data', JSON.stringify(appData));
+          }
+        }
+      } catch (err) { console.error("Gist Download Error:", err); }
+    }
+
+    // --- 到期複習數量計算 ---
     function updateDueReviewCount() {
       const today = new Date().toISOString().slice(0, 10);
       const dueWords = appData.words.filter(w => w.notebookId === appData.activeNotebookId && (!w.nextReviewDate || w.nextReviewDate <= today));
@@ -385,33 +438,23 @@
       if (el) el.innerText = dueWords.length;
     }
 
-    // --- 頁面與導覽分頁 ---
+    // --- 分頁切換 ---
     function switchTab(tabName) {
       const secNotebooks = document.getElementById('sec-notebooks');
       const secBatch = document.getElementById('sec-batch');
       const tabNotebooks = document.getElementById('tab-notebooks');
       const tabBatch = document.getElementById('tab-batch');
 
-      if (!secNotebooks || !secBatch) return;
-
       secNotebooks.classList.toggle('hidden', tabName !== 'notebooks');
       secBatch.classList.toggle('hidden', tabName !== 'batch');
       
-      if (tabNotebooks) {
-        tabNotebooks.className = tabName === 'notebooks' 
-          ? 'px-3 py-1.5 rounded-lg text-sm font-medium bg-indigo-700 text-white shadow' 
-          : 'px-3 py-1.5 rounded-lg text-sm font-medium text-indigo-100 hover:bg-indigo-700';
-      }
-      if (tabBatch) {
-        tabBatch.className = tabName === 'batch' 
-          ? 'px-3 py-1.5 rounded-lg text-sm font-medium bg-indigo-700 text-white shadow' 
-          : 'px-3 py-1.5 rounded-lg text-sm font-medium text-indigo-100 hover:bg-indigo-700';
-      }
+      tabNotebooks.className = tabName === 'notebooks' ? 'px-2.5 py-1.5 rounded-lg text-xs sm:text-sm font-medium bg-indigo-700 text-white shadow' : 'px-2.5 py-1.5 rounded-lg text-xs sm:text-sm font-medium text-indigo-100 hover:bg-indigo-700';
+      tabBatch.className = tabName === 'batch' ? 'px-2.5 py-1.5 rounded-lg text-xs sm:text-sm font-medium bg-indigo-700 text-white shadow' : 'px-2.5 py-1.5 rounded-lg text-xs sm:text-sm font-medium text-indigo-100 hover:bg-indigo-700';
 
       if (tabName === 'batch') updateBatchNotebookSelect();
     }
 
-    // --- 單字本管理 ---
+    // --- 單字本 Tab ---
     function renderNotebookTabs() {
       const container = document.getElementById('notebook-tabs-container');
       if (!container) return;
@@ -420,7 +463,7 @@
       appData.notebooks.forEach(nb => {
         const isActive = nb.id === appData.activeNotebookId;
         const btn = document.createElement('button');
-        btn.className = `px-3.5 py-1.5 rounded-lg text-sm font-medium whitespace-nowrap transition ${
+        btn.className = `px-3 py-1.5 rounded-lg text-xs sm:text-sm font-medium whitespace-nowrap transition ${
           isActive ? 'bg-indigo-600 text-white shadow-sm' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
         }`;
         btn.innerText = nb.name;
@@ -434,8 +477,7 @@
       });
 
       const currentNb = appData.notebooks.find(n => n.id === appData.activeNotebookId) || appData.notebooks[0];
-      const titleEl = document.getElementById('current-notebook-title');
-      if (titleEl) titleEl.innerHTML = `<i class="fa-solid fa-book text-indigo-600 mr-2"></i> ${currentNb.name}`;
+      document.getElementById('current-notebook-title').innerHTML = `<i class="fa-solid fa-book text-indigo-600 mr-2"></i> ${currentNb.name}`;
     }
 
     function openCreateNotebookModal() { document.getElementById('modal-notebook')?.classList.remove('hidden'); }
@@ -443,7 +485,6 @@
 
     function createNotebook() {
       const nameInput = document.getElementById('new-notebook-name');
-      if (!nameInput) return;
       const name = nameInput.value.trim();
       if (!name) return;
       const newId = 'nb_' + Date.now();
@@ -456,11 +497,10 @@
       renderWords();
     }
 
-    // --- 單字移動 (記憶宮殿) Modal ---
+    // --- 移動單字 Modal ---
     function openMoveWordModal(id) {
       wordToMoveId = id;
       const select = document.getElementById('move-target-notebook');
-      if (!select) return;
       select.innerHTML = '';
       appData.notebooks.forEach(nb => {
         if (nb.id !== appData.activeNotebookId) {
@@ -490,50 +530,47 @@
       closeMoveWordModal();
     }
 
-    // --- 單字渲染與列表 ---
+    // --- 單字清單列表 ---
     function renderWords() {
       const container = document.getElementById('words-container');
-      const countEl = document.getElementById('current-notebook-count');
-      if (!container) return;
-
       const currentWords = appData.words.filter(w => w.notebookId === appData.activeNotebookId);
-      if (countEl) countEl.innerText = `${currentWords.length} 個單字`;
+      document.getElementById('current-notebook-count').innerText = `${currentWords.length} 個單字`;
 
       if (currentWords.length === 0) {
-        container.innerHTML = `
-          <div class="p-12 text-center text-slate-400">
-            <i class="fa-solid fa-folder-open text-4xl mb-3"></i>
-            <p class="text-sm">這個單字本還沒有單字，在上方輸入單字開始建立吧！</p>
-          </div>`;
+        container.innerHTML = `<div class="p-8 text-center text-slate-400 text-xs sm:text-sm"><i class="fa-solid fa-folder-open text-3xl mb-2"></i><p>這裡空空如也，輸入單字開始建立吧！</p></div>`;
         return;
       }
 
       container.innerHTML = '';
       currentWords.forEach(w => {
         const item = document.createElement('div');
-        item.className = 'p-4 hover:bg-slate-50/80 transition flex flex-col md:flex-row md:items-center justify-between gap-3';
+        item.className = 'p-3.5 sm:p-4 hover:bg-slate-50/80 transition flex flex-col md:flex-row md:items-center justify-between gap-2.5';
+        const isPending = w.status === 'pending';
+
         item.innerHTML = `
           <div class="space-y-1 max-w-2xl">
-            <div class="flex items-center space-x-3">
-              <span class="text-lg font-bold text-slate-900">${w.word}</span>
-              <span class="text-xs px-2 py-0.5 bg-slate-100 text-slate-600 rounded font-medium">${w.type || ''}</span>
-              <span class="text-sm font-semibold text-indigo-700">${w.meaning}</span>
-              <button onclick="speakText('${w.word.replace(/'/g, "\\'")}')" class="text-indigo-500 hover:text-indigo-700 text-sm ml-1"><i class="fa-solid fa-volume-high"></i></button>
+            <div class="flex items-center space-x-2 flex-wrap">
+              <span class="text-base sm:text-lg font-bold text-slate-900">${w.word}</span>
+              <span class="text-[11px] px-1.5 py-0.5 bg-slate-100 text-slate-600 rounded font-medium">${w.type || ''}</span>
+              <span class="text-xs sm:text-sm font-semibold ${isPending ? 'text-amber-600 bg-amber-50 px-2 py-0.5 rounded' : 'text-indigo-700'}">${isPending ? '⏳ 待 AI 生成' : w.meaning}</span>
+              <button onclick="speakText('${w.word.replace(/'/g, "\\'")}')" class="text-indigo-500 hover:text-indigo-700 text-xs ml-1"><i class="fa-solid fa-volume-high"></i></button>
             </div>
-            <div class="text-xs text-slate-500 flex flex-wrap gap-2">
-              <span><strong class="text-slate-600">同義詞:</strong> ${w.synonyms || '無'}</span>
+            ${!isPending ? `
+            <div class="text-[11px] sm:text-xs text-slate-500 flex flex-wrap gap-2">
+              <span><strong class="text-slate-600">同義:</strong> ${w.synonyms || '無'}</span>
               <span>•</span>
-              <span><strong class="text-slate-600">搭配片語:</strong> ${w.phrases || '無'}</span>
+              <span><strong class="text-slate-600">片語:</strong> ${w.phrases || '無'}</span>
             </div>
-            <div class="text-xs text-slate-600 italic bg-slate-100/70 p-2 rounded border border-slate-200/60 mt-1">
-              "${w.sentence || ''}" <span class="text-slate-500 not-italic ml-2">(${w.translation || ''})</span>
-            </div>
+            <div class="text-[11px] sm:text-xs text-slate-600 italic bg-slate-100/70 p-1.5 sm:p-2 rounded border border-slate-200/60 mt-1">
+              "${w.sentence || ''}" <span class="text-slate-500 not-italic ml-1.5">(${w.translation || ''})</span>
+            </div>` : ''}
           </div>
-          <div class="flex items-center space-x-2 shrink-0">
-            <button onclick="openMoveWordModal('${w.id}')" title="移動到其他單字本/記憶宮殿" class="text-xs px-2.5 py-1 bg-slate-100 hover:bg-indigo-50 text-slate-600 hover:text-indigo-600 font-medium rounded-lg border border-slate-200 transition">
+          <div class="flex items-center space-x-2 shrink-0 self-end md:self-center">
+            ${isPending ? `<button onclick="singleFetchWord('${w.id}')" class="text-xs px-2.5 py-1 bg-amber-500 hover:bg-amber-600 text-white font-medium rounded-lg shadow-sm transition"><i class="fa-solid fa-sparkles mr-1"></i>AI生成</button>` : ''}
+            <button onclick="openMoveWordModal('${w.id}')" title="移動至記憶宮殿" class="text-xs px-2.5 py-1 bg-slate-100 hover:bg-indigo-50 text-slate-600 hover:text-indigo-600 font-medium rounded-lg border border-slate-200 transition">
               <i class="fa-solid fa-arrow-right-to-bracket mr-1"></i>移動
             </button>
-            <button onclick="deleteWord('${w.id}')" class="text-slate-400 hover:text-rose-600 text-sm p-1.5"><i class="fa-solid fa-trash-can"></i></button>
+            <button onclick="deleteWord('${w.id}')" class="text-slate-400 hover:text-rose-600 text-xs p-1"><i class="fa-solid fa-trash-can"></i></button>
           </div>
         `;
         container.appendChild(item);
@@ -546,44 +583,64 @@
       renderWords();
     }
 
-    // --- AI 單字自動補齊 ---
+    // --- 快速新增單字（支援離線暫存） ---
     async function autoAddWord() {
       const input = document.getElementById('quick-word-input');
-      if (!input) return;
       const word = input.value.trim();
-      if (!word) { alert('請輸入單字！'); return; }
+      if (!word) return;
 
-      if (!appData.apiKey) { alert('請先點擊右上角「設定」填入 Gemini API Key！'); openSettingsModal(); return; }
+      const today = new Date().toISOString().slice(0, 10);
+      const newWordObj = {
+        id: 'w_' + Date.now(),
+        notebookId: appData.activeNotebookId,
+        word: word,
+        type: '', meaning: '', synonyms: '', phrases: '', sentence: '', translation: '',
+        nextReviewDate: today, interval: 1, repetitions: 0,
+        status: 'pending' // 預設先存為待生成
+      };
 
-      const btn = document.getElementById('btn-auto-add');
-      if (btn) { btn.disabled = true; btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin mr-2"></i> AI 生成中...`; }
+      appData.words.unshift(newWordObj);
+      input.value = '';
+      saveLocalStorage();
+      renderWords();
+
+      // 如果有 API Key，嘗試背景自動調用 AI
+      if (appData.apiKey) {
+        singleFetchWord(newWordObj.id);
+      }
+    }
+
+    async function singleFetchWord(wordId) {
+      const wordObj = appData.words.find(w => w.id === wordId);
+      if (!wordObj) return;
 
       try {
-        const details = await fetchWordDetailsFromAI(word);
-        const today = new Date().toISOString().slice(0, 10);
-        appData.words.unshift({
-          id: 'w_' + Date.now(),
-          notebookId: appData.activeNotebookId,
-          word: word,
-          type: details.type || '',
-          meaning: details.meaning || '',
-          synonyms: details.synonyms || '',
-          phrases: details.phrases || '',
-          sentence: details.sentence || '',
-          translation: details.translation || '',
-          nextReviewDate: today,
-          interval: 1,
-          repetitions: 0
-        });
+        const details = await fetchWordDetailsFromAI(wordObj.word);
+        Object.assign(wordObj, details);
+        wordObj.status = 'ready';
         saveLocalStorage();
         renderWords();
-        input.value = '';
       } catch (err) {
-        console.error(err);
-        alert('生成失敗: ' + err.message);
-      } finally {
-        if (btn) { btn.disabled = false; btn.innerHTML = `<i class="fa-solid fa-sparkles mr-2"></i> AI 自動生成並儲存`; }
+        console.error("Fetch Word Error:", err);
       }
+    }
+
+    // 批量補齊待生成單字
+    async function fillPendingWords() {
+      const pendings = appData.words.filter(w => w.notebookId === appData.activeNotebookId && w.status === 'pending');
+      if (pendings.length === 0) { alert('目前沒有需要補齊的單字！'); return; }
+      if (!appData.apiKey) { alert('請先填入 Gemini API Key！'); openSettingsModal(); return; }
+
+      const btn = document.getElementById('btn-fill-pending');
+      btn.disabled = true;
+      btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin mr-1"></i> 處理中...`;
+
+      for (let w of pendings) {
+        await singleFetchWord(w.id);
+      }
+
+      btn.disabled = false;
+      btn.innerHTML = `<i class="fa-solid fa-bolt mr-1"></i> 一鍵補齊待生成單字`;
     }
 
     async function fetchWordDetailsFromAI(word) {
@@ -591,18 +648,14 @@
       {"type":"詞性縮寫","meaning":"中文釋義","synonyms":"1-2個同義詞","phrases":"1-2個片語","sentence":"簡短例句","translation":"例句翻譯"}`;
 
       const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${appData.apiKey}`;
-      
       const response = await fetchWithTimeout(url, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ 
-          contents: [{ parts: [{ text: prompt }] }], 
-          generationConfig: { responseMimeType: "application/json" } 
-        })
-      }, 15000); // 15秒超時強制中斷
+        body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }], generationConfig: { responseMimeType: "application/json" } })
+      }, 12000);
 
       const data = await response.json();
-      if (!response.ok) throw new Error(data.error?.message || 'API 請求失敗，請檢查 Key');
+      if (!response.ok) throw new Error(data.error?.message || 'API 失敗');
       let rawText = data.candidates[0].content.parts[0].text.replace(/```json/g, '').replace(/```/g, '').trim();
       return JSON.parse(rawText);
     }
@@ -613,66 +666,33 @@
 
     async function processBatchSingleWords() {
       const textInput = document.getElementById('batch-words-list-input');
-      if (!textInput) return;
       const rawText = textInput.value.trim();
-      if (!rawText) { alert('請輸入單字列表！'); return; }
-      if (!appData.apiKey) { alert('請先填入 Gemini API Key！'); openSettingsModal(); return; }
+      if (!rawText) return;
 
       const wordList = rawText.split(/[\n,]+/).map(w => w.trim()).filter(w => w.length > 0);
-      if (wordList.length === 0) return;
+      const today = new Date().toISOString().slice(0, 10);
 
-      const btn = document.getElementById('btn-process-batch-words');
-      if (btn) { btn.disabled = true; btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin mr-2"></i> AI 批量生成中...`; }
-
-      try {
-        const prompt = `請針對以下英文單字列表，批量提供繁體中文學習資訊：
-        單字列表：${wordList.join(', ')}
-
-        必須嚴格回傳標準 JSON 陣列 (Array of Objects)，每個 Object 包含欄位：
-        word, type, meaning, synonyms, phrases, sentence, translation`;
-
-        const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${appData.apiKey}`;
-        const response = await fetchWithTimeout(url, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }], generationConfig: { responseMimeType: "application/json" } })
-        }, 25000);
-
-        const data = await response.json();
-        if (!response.ok) throw new Error(data.error?.message || 'API 請求失敗');
-
-        let jsonText = data.candidates[0].content.parts[0].text.replace(/```json/g, '').replace(/```/g, '').trim();
-        const results = JSON.parse(jsonText);
-
-        const today = new Date().toISOString().slice(0, 10);
-        results.forEach((item, idx) => {
-          appData.words.unshift({
-            id: 'w_' + Date.now() + '_' + idx,
-            notebookId: appData.activeNotebookId,
-            ...item,
-            nextReviewDate: today,
-            interval: 1,
-            repetitions: 0
-          });
+      wordList.forEach((w, idx) => {
+        appData.words.unshift({
+          id: 'w_' + Date.now() + '_' + idx,
+          notebookId: appData.activeNotebookId,
+          word: w, type: '', meaning: '', synonyms: '', phrases: '', sentence: '', translation: '',
+          nextReviewDate: today, interval: 1, repetitions: 0,
+          status: 'pending'
         });
+      });
 
-        saveLocalStorage();
-        renderWords();
-        closeBatchWordsModal();
-        textInput.value = '';
-        alert(`已成功批量新增 ${results.length} 個單字！`);
-      } catch (err) {
-        console.error(err);
-        alert('批次解析失敗: ' + err.message);
-      } finally {
-        if (btn) { btn.disabled = false; btn.innerHTML = `AI 批量解析並匯入`; }
-      }
+      saveLocalStorage();
+      renderWords();
+      closeBatchWordsModal();
+      textInput.value = '';
+
+      if (appData.apiKey) fillPendingWords();
     }
 
     // --- YouTube / 逐字稿 AI 批次動態提取 ---
     function updateBatchNotebookSelect() {
       const select = document.getElementById('batch-target-notebook');
-      if (!select) return;
       select.innerHTML = '';
       appData.notebooks.forEach(nb => {
         const opt = document.createElement('option');
@@ -685,61 +705,54 @@
 
     async function processBatchText() {
       const textInput = document.getElementById('batch-text-input');
-      if (!textInput) return;
       const text = textInput.value.trim();
-      if (!text) { alert('請輸入逐字稿或文章內容！'); return; }
+      if (!text) return;
       if (!appData.apiKey) { alert('請先填入 Gemini API Key！'); openSettingsModal(); return; }
 
       const btn = document.getElementById('btn-process-batch');
-      if (btn) { btn.disabled = true; btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin mr-2"></i> AI 分析逐字稿中...`; }
+      btn.disabled = true;
+      btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin mr-1"></i> AI提取中...`;
 
       try {
-        const prompt = `請分析以下英文逐字稿/文章，挑選適合學習的中高級關鍵單字。
-        例句 (sentence) 必須完全使用逐字稿內的原文句子！
-        
-        請回傳標準 JSON 陣列：
+        const prompt = `分析英文文章，挑選關鍵單字，例句 (sentence) 必須完全採用原文句子。回傳 JSON 陣列：
         word, type, meaning, synonyms, phrases, sentence, translation
         
-        逐字稿內容：
-        ${text}`;
+        文章：${text}`;
 
         const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${appData.apiKey}`;
         const response = await fetchWithTimeout(url, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }], generationConfig: { responseMimeType: "application/json" } })
-        }, 30000);
+        }, 25000);
 
         const data = await response.json();
-        if (!response.ok) throw new Error(data.error?.message || 'API 請求失敗');
-
         let rawText = data.candidates[0].content.parts[0].text.replace(/```json/g, '').replace(/```/g, '').trim();
         extractedBatchWords = JSON.parse(rawText);
         renderBatchPreview();
       } catch (err) {
-        console.error('Batch Extract Error:', err);
-        alert('批次分析失敗: ' + err.message);
+        alert('提取失敗: ' + err.message);
       } finally {
-        if (btn) { btn.disabled = false; btn.innerHTML = `<i class="fa-solid fa-magnifying-glass-plus mr-2"></i> AI 分析並提取關鍵單字`; }
+        btn.disabled = false;
+        btn.innerHTML = `<i class="fa-solid fa-magnifying-glass-plus mr-1.5"></i> AI提取`;
       }
     }
 
     function renderBatchPreview() {
       const wrapper = document.getElementById('batch-results-wrapper');
       const container = document.getElementById('batch-preview-list');
-      if (!wrapper || !container) return;
       wrapper.classList.remove('hidden');
       container.innerHTML = '';
 
       extractedBatchWords.forEach((item, idx) => {
         const div = document.createElement('div');
-        div.className = 'p-3 bg-slate-50 border rounded-lg flex items-start space-x-3';
+        div.className = 'p-3 bg-slate-50 border rounded-lg flex items-start space-x-2.5';
         div.innerHTML = `
-          <input type="checkbox" id="batch-chk-${idx}" checked class="mt-1.5 h-4 w-4 text-indigo-600 rounded">
-          <div class="text-sm">
-            <span class="font-bold text-slate-900">${item.word}</span> <span class="text-xs text-slate-500">(${item.type || ''})</span> - <span class="text-indigo-700 font-semibold">${item.meaning || ''}</span>
-            <div class="text-xs text-slate-500 mt-0.5">同義詞: ${item.synonyms || ''} | 片語: ${item.phrases || ''}</div>
-            <div class="text-xs text-slate-600 italic mt-1 bg-white p-1.5 rounded border border-slate-200">"原文上下文: ${item.sentence || ''}" (${item.translation || ''})</div>
+          <input type="checkbox" id="batch-chk-${idx}" checked class="mt-1 h-4 w-4 text-indigo-600 rounded">
+          <div class="text-xs sm:text-sm">
+            <span class="font-bold text-slate-900">${item.word}</span> <span class="text-slate-500">(${item.type || ''})</span> - <span class="text-indigo-700 font-semibold">${item.meaning || ''}</span>
+            <div class="text-[11px] text-slate-500 mt-0.5">同義: ${item.synonyms || ''} | 片語: ${item.phrases || ''}</div>
+            <div class="text-[11px] text-slate-600 italic mt-1 bg-white p-1.5 rounded border border-slate-200">"${item.sentence || ''}" (${item.translation || ''})</div>
           </div>
         `;
         container.appendChild(div);
@@ -747,8 +760,7 @@
     }
 
     function confirmBatchImport() {
-      const select = document.getElementById('batch-target-notebook');
-      const targetNbId = select ? select.value : appData.activeNotebookId;
+      const targetNbId = document.getElementById('batch-target-notebook').value;
       let count = 0;
       const today = new Date().toISOString().slice(0, 10);
       
@@ -759,9 +771,7 @@
             id: 'w_' + Date.now() + '_' + idx,
             notebookId: targetNbId,
             ...item,
-            nextReviewDate: today,
-            interval: 1,
-            repetitions: 0
+            nextReviewDate: today, interval: 1, repetitions: 0, status: 'ready'
           });
           count++;
         }
@@ -769,21 +779,15 @@
       saveLocalStorage();
       alert(`已成功匯入 ${count} 個單字！`);
       document.getElementById('batch-results-wrapper')?.classList.add('hidden');
-      const textInput = document.getElementById('batch-text-input');
-      if (textInput) textInput.value = '';
+      document.getElementById('batch-text-input').value = '';
       switchTab('notebooks');
     }
 
-    // --- 艾賓豪斯閃卡 (SRS) 複習功能 ---
+    // --- 閃卡 (SRS) 複習 ---
     function startReview() {
       const today = new Date().toISOString().slice(0, 10);
       reviewQueue = appData.words.filter(w => w.notebookId === appData.activeNotebookId && (!w.nextReviewDate || w.nextReviewDate <= today));
-      
-      if (reviewQueue.length === 0) { 
-        alert('太棒了！目前單字本沒有今天到期需要複習的卡片！'); 
-        return; 
-      }
-      
+      if (reviewQueue.length === 0) { alert('目前沒有今天到期需要複習的卡片！'); return; }
       reviewIndex = 0;
       document.getElementById('modal-review')?.classList.remove('hidden');
       renderReviewCard();
@@ -800,13 +804,12 @@
       }
 
       const card = reviewQueue[reviewIndex];
-      const inner = document.getElementById('review-card-inner');
-      if (inner) inner.classList.remove('card-flipped');
+      document.getElementById('review-card-inner')?.classList.remove('card-flipped');
       document.getElementById('srs-buttons')?.classList.add('hidden');
 
       document.getElementById('review-progress').innerText = `卡片 ${reviewIndex + 1} / ${reviewQueue.length}`;
       document.getElementById('review-word').innerText = card.word || '';
-      document.getElementById('review-synonyms').innerText = card.synonyms ? `同義詞: ${card.synonyms}` : '無同義詞標記';
+      document.getElementById('review-synonyms').innerText = card.synonyms ? `同義: ${card.synonyms}` : '無同義詞';
       document.getElementById('review-word-back').innerText = card.word || '';
       document.getElementById('review-meaning').innerText = `${card.type || ''} ${card.meaning || ''}`;
       document.getElementById('review-phrases').innerText = card.phrases || '無';
@@ -816,11 +819,9 @@
 
     function flipCard() {
       const inner = document.getElementById('review-card-inner');
-      if (inner) {
-        inner.classList.toggle('card-flipped');
-        if (inner.classList.contains('card-flipped')) {
-          document.getElementById('srs-buttons')?.classList.remove('hidden');
-        }
+      inner.classList.toggle('card-flipped');
+      if (inner.classList.contains('card-flipped')) {
+        document.getElementById('srs-buttons')?.classList.remove('hidden');
       }
     }
 
@@ -832,16 +833,9 @@
         let currentInterval = wordObj.interval || 1;
         let nextInterval = 1;
 
-        if (rating === 'again') {
-          nextInterval = 1;
-          wordObj.repetitions = 0;
-        } else if (rating === 'good') {
-          nextInterval = Math.max(2, Math.round(currentInterval * 1.8));
-          wordObj.repetitions = (wordObj.repetitions || 0) + 1;
-        } else if (rating === 'easy') {
-          nextInterval = Math.max(7, Math.round(currentInterval * 2.5));
-          wordObj.repetitions = (wordObj.repetitions || 0) + 1;
-        }
+        if (rating === 'again') { nextInterval = 1; wordObj.repetitions = 0; }
+        else if (rating === 'good') { nextInterval = Math.max(2, Math.round(currentInterval * 1.8)); wordObj.repetitions = (wordObj.repetitions || 0) + 1; }
+        else if (rating === 'easy') { nextInterval = Math.max(7, Math.round(currentInterval * 2.5)); wordObj.repetitions = (wordObj.repetitions || 0) + 1; }
 
         const nextDate = new Date();
         nextDate.setDate(nextDate.getDate() + nextInterval);
@@ -864,18 +858,16 @@
       }
     }
 
-    // --- 設定 Modal 與資料備份 ---
+    // --- 設定 Modal ---
     function openSettingsModal() { document.getElementById('modal-settings')?.classList.remove('hidden'); }
     function closeSettingsModal() { document.getElementById('modal-settings')?.classList.add('hidden'); }
 
     function saveSettings() {
-      const keyInput = document.getElementById('setting-api-key');
-      if (keyInput) {
-        appData.apiKey = keyInput.value.trim();
-        saveLocalStorage();
-        closeSettingsModal();
-        alert('設定已儲存！');
-      }
+      appData.apiKey = document.getElementById('setting-api-key').value.trim();
+      appData.githubToken = document.getElementById('setting-github-token').value.trim();
+      saveLocalStorage();
+      closeSettingsModal();
+      alert('設定已儲存！');
     }
 
     function exportData() {
