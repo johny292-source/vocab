@@ -71,7 +71,7 @@
           <span id="current-notebook-count" class="text-xs sm:text-sm font-medium bg-indigo-50 text-indigo-700 px-2.5 py-1 rounded-full">0 個單字</span>
         </div>
 
-        <!-- 快速新增單字輸入框 (手機防超格優化) -->
+        <!-- 快速新增單字輸入框 -->
         <div>
           <label class="block text-xs sm:text-sm font-medium text-slate-700 mb-1">快速新增單字（支援離線儲存與 AI 補齊）</label>
           <div class="flex gap-2">
@@ -179,7 +179,7 @@
     </div>
   </div>
 
-  <!-- 彈出視窗：設定 (API Key, GitHub Token 與同步) -->
+  <!-- 彈出視窗：設定 -->
   <div id="modal-settings" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm hidden flex items-center justify-center p-4 z-50">
     <div class="bg-white rounded-2xl max-w-md w-full p-5 sm:p-6 shadow-2xl space-y-4 overflow-y-auto max-h-[90vh]">
       <div class="flex justify-between items-center border-b pb-3">
@@ -198,11 +198,20 @@
         <div>
           <label class="block text-xs sm:text-sm font-medium text-slate-700 mb-1">GitHub Personal Access Token (PAT)</label>
           <input type="password" id="setting-github-token" placeholder="ghp_..." class="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:outline-none text-xs sm:text-sm">
-          <p class="text-[11px] text-slate-500 mt-1">勾選 `gist` 權限的 Token。填入後手機與電腦將自動全時雲端同步！</p>
+          <p class="text-[11px] text-slate-500 mt-1">須勾選 `gist` 權限。填入後將自動全時雲端同步！</p>
+        </div>
+
+        <div class="border-t pt-3 flex gap-2">
+          <button onclick="manualSyncFromGist()" class="flex-1 px-3 py-2 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 text-xs font-semibold rounded-lg border border-indigo-200 transition">
+            <i class="fa-solid fa-cloud-arrow-down mr-1"></i> 手動從 Gist 同步
+          </button>
+          <button onclick="manualSyncToGist()" class="flex-1 px-3 py-2 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 text-xs font-semibold rounded-lg border border-emerald-200 transition">
+            <i class="fa-solid fa-cloud-arrow-up mr-1"></i> 手動上傳至 Gist
+          </button>
         </div>
 
         <div class="border-t pt-3">
-          <label class="block text-xs sm:text-sm font-medium text-slate-700 mb-2">手動備份與匯入</label>
+          <label class="block text-xs sm:text-sm font-medium text-slate-700 mb-2">JSON 備份與匯入</label>
           <div class="flex gap-2">
             <button onclick="exportData()" class="flex-1 px-3 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold rounded-lg border border-slate-300 transition">
               <i class="fa-solid fa-download mr-1"></i> 匯出 JSON
@@ -216,7 +225,7 @@
       </div>
 
       <div class="flex justify-end pt-2">
-        <button onclick="saveSettings()" class="px-5 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-xs sm:text-sm font-medium rounded-lg shadow">儲存設定並同步</button>
+        <button onclick="saveSettings()" class="px-5 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-xs sm:text-sm font-medium rounded-lg shadow">儲存設定</button>
       </div>
     </div>
   </div>
@@ -295,7 +304,6 @@
   </div>
 
   <script>
-    // --- 全域資料結構狀態 ---
     let appData = {
       apiKey: '',
       githubToken: '',
@@ -330,7 +338,6 @@
     let reviewIndex = 0;
     let wordToMoveId = null;
 
-    // 核心工具：帶有超時控制的 API Fetch
     async function fetchWithTimeout(url, options, timeoutMs = 15000) {
       const controller = new AbortController();
       const id = setTimeout(() => controller.abort(), timeoutMs);
@@ -340,17 +347,16 @@
         return response;
       } catch (err) {
         clearTimeout(id);
-        if (err.name === 'AbortError') throw new Error('API 請求超時，請檢查 API Key 或網路環境！');
+        if (err.name === 'AbortError') throw new Error('API 請求超時（15秒未回應）！');
         throw err;
       }
     }
 
-    // --- 安全初始化 ---
     document.addEventListener('DOMContentLoaded', async () => {
       try {
         loadLocalStorage();
         if (appData.githubToken) {
-          await syncFromGist(); // 初始化時從 GitHub Gist 下載最新資料
+          await syncFromGist();
         }
         renderNotebookTabs();
         renderWords();
@@ -360,13 +366,12 @@
       }
     });
 
-    // --- 本地與 Gist 雲端同步 ---
     function saveLocalStorage() {
       try {
         localStorage.setItem('vocabmaster_data', JSON.stringify(appData));
         updateDueReviewCount();
         if (appData.githubToken) {
-          syncToGist(); // 靜默背景上傳至 Gist
+          syncToGist();
         }
       } catch (e) { console.error("Save Error:", e); }
     }
@@ -383,13 +388,25 @@
       document.getElementById('setting-github-token').value = appData.githubToken || '';
     }
 
-    // Gist 上傳與下載 API
+    // 強化版 Gist 同步：透過檔名尋找，確保抓得到
     async function syncToGist() {
       if (!appData.githubToken) return;
       const fileName = "vocabmaster_database.json";
       const content = JSON.stringify(appData, null, 2);
 
       try {
+        if (!appData.gistId) {
+          // 先在遠端搜尋有沒有已經存在的 vocabmaster_database.json
+          const listRes = await fetch('https://api.github.com/gists', {
+            headers: { 'Authorization': `token ${appData.githubToken}` }
+          });
+          const gists = await listRes.json();
+          if (Array.isArray(gists)) {
+            const found = gists.find(g => g.files && g.files[fileName]);
+            if (found) appData.gistId = found.id;
+          }
+        }
+
         if (!appData.gistId) {
           // 建立新 Gist
           const res = await fetch('https://api.github.com/gists', {
@@ -412,25 +429,39 @@
 
     async function syncFromGist() {
       if (!appData.githubToken) return;
+      const fileName = "vocabmaster_database.json";
       try {
         const res = await fetch('https://api.github.com/gists', {
           headers: { 'Authorization': `token ${appData.githubToken}` }
         });
         const gists = await res.json();
-        const targetGist = gists.find(g => g.description === "VocabMaster Cloud Database");
-        if (targetGist && targetGist.files["vocabmaster_database.json"]) {
+        if (!Array.isArray(gists)) return;
+
+        const targetGist = gists.find(g => g.files && g.files[fileName]);
+        if (targetGist && targetGist.files[fileName]) {
           appData.gistId = targetGist.id;
-          const rawRes = await fetch(targetGist.files["vocabmaster_database.json"].raw_url);
+          const rawRes = await fetch(targetGist.files[fileName].raw_url);
           const cloudData = await rawRes.json();
           if (cloudData && cloudData.words) {
             appData = cloudData;
             localStorage.setItem('vocabmaster_data', JSON.stringify(appData));
+            renderNotebookTabs();
+            renderWords();
           }
         }
       } catch (err) { console.error("Gist Download Error:", err); }
     }
 
-    // --- 到期複習數量計算 ---
+    async function manualSyncFromGist() {
+      await syncFromGist();
+      alert('已成功從雲端 Gist 同步最新資料！');
+    }
+
+    async function manualSyncToGist() {
+      await syncToGist();
+      alert('已成功將本地資料上傳至雲端 Gist！');
+    }
+
     function updateDueReviewCount() {
       const today = new Date().toISOString().slice(0, 10);
       const dueWords = appData.words.filter(w => w.notebookId === appData.activeNotebookId && (!w.nextReviewDate || w.nextReviewDate <= today));
@@ -438,44 +469,26 @@
       if (el) el.innerText = dueWords.length;
     }
 
-    // --- 分頁切換 ---
     function switchTab(tabName) {
-      const secNotebooks = document.getElementById('sec-notebooks');
-      const secBatch = document.getElementById('sec-batch');
-      const tabNotebooks = document.getElementById('tab-notebooks');
-      const tabBatch = document.getElementById('tab-batch');
-
-      secNotebooks.classList.toggle('hidden', tabName !== 'notebooks');
-      secBatch.classList.toggle('hidden', tabName !== 'batch');
-      
-      tabNotebooks.className = tabName === 'notebooks' ? 'px-2.5 py-1.5 rounded-lg text-xs sm:text-sm font-medium bg-indigo-700 text-white shadow' : 'px-2.5 py-1.5 rounded-lg text-xs sm:text-sm font-medium text-indigo-100 hover:bg-indigo-700';
-      tabBatch.className = tabName === 'batch' ? 'px-2.5 py-1.5 rounded-lg text-xs sm:text-sm font-medium bg-indigo-700 text-white shadow' : 'px-2.5 py-1.5 rounded-lg text-xs sm:text-sm font-medium text-indigo-100 hover:bg-indigo-700';
-
+      document.getElementById('sec-notebooks').classList.toggle('hidden', tabName !== 'notebooks');
+      document.getElementById('sec-batch').classList.toggle('hidden', tabName !== 'batch');
+      document.getElementById('tab-notebooks').className = tabName === 'notebooks' ? 'px-2.5 py-1.5 rounded-lg text-xs sm:text-sm font-medium bg-indigo-700 text-white shadow' : 'px-2.5 py-1.5 rounded-lg text-xs sm:text-sm font-medium text-indigo-100 hover:bg-indigo-700';
+      document.getElementById('tab-batch').className = tabName === 'batch' ? 'px-2.5 py-1.5 rounded-lg text-xs sm:text-sm font-medium bg-indigo-700 text-white shadow' : 'px-2.5 py-1.5 rounded-lg text-xs sm:text-sm font-medium text-indigo-100 hover:bg-indigo-700';
       if (tabName === 'batch') updateBatchNotebookSelect();
     }
 
-    // --- 單字本 Tab ---
     function renderNotebookTabs() {
       const container = document.getElementById('notebook-tabs-container');
       if (!container) return;
       container.innerHTML = '';
-      
       appData.notebooks.forEach(nb => {
         const isActive = nb.id === appData.activeNotebookId;
         const btn = document.createElement('button');
-        btn.className = `px-3 py-1.5 rounded-lg text-xs sm:text-sm font-medium whitespace-nowrap transition ${
-          isActive ? 'bg-indigo-600 text-white shadow-sm' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
-        }`;
+        btn.className = `px-3 py-1.5 rounded-lg text-xs sm:text-sm font-medium whitespace-nowrap transition ${isActive ? 'bg-indigo-600 text-white shadow-sm' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'}`;
         btn.innerText = nb.name;
-        btn.onclick = () => {
-          appData.activeNotebookId = nb.id;
-          saveLocalStorage();
-          renderNotebookTabs();
-          renderWords();
-        };
+        btn.onclick = () => { appData.activeNotebookId = nb.id; saveLocalStorage(); renderNotebookTabs(); renderWords(); };
         container.appendChild(btn);
       });
-
       const currentNb = appData.notebooks.find(n => n.id === appData.activeNotebookId) || appData.notebooks[0];
       document.getElementById('current-notebook-title').innerHTML = `<i class="fa-solid fa-book text-indigo-600 mr-2"></i> ${currentNb.name}`;
     }
@@ -497,7 +510,6 @@
       renderWords();
     }
 
-    // --- 移動單字 Modal ---
     function openMoveWordModal(id) {
       wordToMoveId = id;
       const select = document.getElementById('move-target-notebook');
@@ -513,24 +525,16 @@
       document.getElementById('modal-move-word')?.classList.remove('hidden');
     }
 
-    function closeMoveWordModal() {
-      wordToMoveId = null;
-      document.getElementById('modal-move-word')?.classList.add('hidden');
-    }
+    function closeMoveWordModal() { wordToMoveId = null; document.getElementById('modal-move-word')?.classList.add('hidden'); }
 
     function confirmMoveWord() {
       if (!wordToMoveId) return;
       const targetId = document.getElementById('move-target-notebook').value;
       const word = appData.words.find(w => w.id === wordToMoveId);
-      if (word) {
-        word.notebookId = targetId;
-        saveLocalStorage();
-        renderWords();
-      }
+      if (word) { word.notebookId = targetId; saveLocalStorage(); renderWords(); }
       closeMoveWordModal();
     }
 
-    // --- 單字清單列表 ---
     function renderWords() {
       const container = document.getElementById('words-container');
       const currentWords = appData.words.filter(w => w.notebookId === appData.activeNotebookId);
@@ -567,7 +571,7 @@
           </div>
           <div class="flex items-center space-x-2 shrink-0 self-end md:self-center">
             ${isPending ? `<button onclick="singleFetchWord('${w.id}')" class="text-xs px-2.5 py-1 bg-amber-500 hover:bg-amber-600 text-white font-medium rounded-lg shadow-sm transition"><i class="fa-solid fa-sparkles mr-1"></i>AI生成</button>` : ''}
-            <button onclick="openMoveWordModal('${w.id}')" title="移動至記憶宮殿" class="text-xs px-2.5 py-1 bg-slate-100 hover:bg-indigo-50 text-slate-600 hover:text-indigo-600 font-medium rounded-lg border border-slate-200 transition">
+            <button onclick="openMoveWordModal('${w.id}')" title="移動" class="text-xs px-2.5 py-1 bg-slate-100 hover:bg-indigo-50 text-slate-600 hover:text-indigo-600 font-medium rounded-lg border border-slate-200 transition">
               <i class="fa-solid fa-arrow-right-to-bracket mr-1"></i>移動
             </button>
             <button onclick="deleteWord('${w.id}')" class="text-slate-400 hover:text-rose-600 text-xs p-1"><i class="fa-solid fa-trash-can"></i></button>
@@ -583,7 +587,6 @@
       renderWords();
     }
 
-    // --- 快速新增單字（支援離線暫存） ---
     async function autoAddWord() {
       const input = document.getElementById('quick-word-input');
       const word = input.value.trim();
@@ -596,7 +599,7 @@
         word: word,
         type: '', meaning: '', synonyms: '', phrases: '', sentence: '', translation: '',
         nextReviewDate: today, interval: 1, repetitions: 0,
-        status: 'pending' // 預設先存為待生成
+        status: 'pending'
       };
 
       appData.words.unshift(newWordObj);
@@ -604,15 +607,17 @@
       saveLocalStorage();
       renderWords();
 
-      // 如果有 API Key，嘗試背景自動調用 AI
       if (appData.apiKey) {
         singleFetchWord(newWordObj.id);
+      } else {
+        alert('已加入待生成清單！記得在右上角設定填入 API Key 才能執行 AI 生成。');
       }
     }
 
     async function singleFetchWord(wordId) {
       const wordObj = appData.words.find(w => w.id === wordId);
       if (!wordObj) return;
+      if (!appData.apiKey) { alert('請先在右上角「設定」填入 Gemini API Key！'); openSettingsModal(); return; }
 
       try {
         const details = await fetchWordDetailsFromAI(wordObj.word);
@@ -622,10 +627,10 @@
         renderWords();
       } catch (err) {
         console.error("Fetch Word Error:", err);
+        alert('AI 生成失敗: ' + err.message);
       }
     }
 
-    // 批量補齊待生成單字
     async function fillPendingWords() {
       const pendings = appData.words.filter(w => w.notebookId === appData.activeNotebookId && w.status === 'pending');
       if (pendings.length === 0) { alert('目前沒有需要補齊的單字！'); return; }
@@ -652,15 +657,14 @@
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }], generationConfig: { responseMimeType: "application/json" } })
-      }, 12000);
+      }, 15000);
 
       const data = await response.json();
-      if (!response.ok) throw new Error(data.error?.message || 'API 失敗');
+      if (!response.ok) throw new Error(data.error?.message || 'API 請求失敗，請檢查 Key');
       let rawText = data.candidates[0].content.parts[0].text.replace(/```json/g, '').replace(/```/g, '').trim();
       return JSON.parse(rawText);
     }
 
-    // --- 批次單字手動輸入 ---
     function openBatchWordsModal() { document.getElementById('modal-batch-words')?.classList.remove('hidden'); }
     function closeBatchWordsModal() { document.getElementById('modal-batch-words')?.classList.add('hidden'); }
 
@@ -690,7 +694,6 @@
       if (appData.apiKey) fillPendingWords();
     }
 
-    // --- YouTube / 逐字稿 AI 批次動態提取 ---
     function updateBatchNotebookSelect() {
       const select = document.getElementById('batch-target-notebook');
       select.innerHTML = '';
@@ -727,6 +730,7 @@
         }, 25000);
 
         const data = await response.json();
+        if (!response.ok) throw new Error(data.error?.message || 'API 請求失敗');
         let rawText = data.candidates[0].content.parts[0].text.replace(/```json/g, '').replace(/```/g, '').trim();
         extractedBatchWords = JSON.parse(rawText);
         renderBatchPreview();
@@ -783,7 +787,6 @@
       switchTab('notebooks');
     }
 
-    // --- 閃卡 (SRS) 複習 ---
     function startReview() {
       const today = new Date().toISOString().slice(0, 10);
       reviewQueue = appData.words.filter(w => w.notebookId === appData.activeNotebookId && (!w.nextReviewDate || w.nextReviewDate <= today));
@@ -848,7 +851,6 @@
       renderReviewCard();
     }
 
-    // --- 發音語音朗讀 ---
     function speakText(text) {
       if ('speechSynthesis' in window && text) {
         window.speechSynthesis.cancel();
@@ -858,7 +860,6 @@
       }
     }
 
-    // --- 設定 Modal ---
     function openSettingsModal() { document.getElementById('modal-settings')?.classList.remove('hidden'); }
     function closeSettingsModal() { document.getElementById('modal-settings')?.classList.add('hidden'); }
 
@@ -868,6 +869,7 @@
       saveLocalStorage();
       closeSettingsModal();
       alert('設定已儲存！');
+      if (appData.githubToken) syncFromGist();
     }
 
     function exportData() {
