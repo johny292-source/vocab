@@ -218,9 +218,9 @@
       <div class="space-y-4">
         <!-- Gemini API Key -->
         <div class="bg-slate-900/60 p-4 rounded-xl border border-slate-700/60 space-y-2">
-          <label class="block text-xs font-bold text-indigo-300 uppercase tracking-wider">Gemini API Key (智慧補齊與提取)</label>
-          <input type="password" id="setting-gemini-key" placeholder="AI Studio 取得的 API Key" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-indigo-500">
-          <p class="text-[11px] text-slate-400">填入 API Key 可啟用強大的大語言模型；若未填寫將自動啟用本地智慧字典引擎。</p>
+          <label class="block text-xs font-bold text-indigo-300 uppercase tracking-wider">Gemini API Key</label>
+          <input type="password" id="setting-gemini-key" placeholder="AI Studio 取得的 API Key" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-indigo-500 font-mono text-xs">
+          <p class="text-[11px] text-slate-400">已自動預先帶入您的金鑰，您也可以在此隨時修改更新。</p>
         </div>
 
         <!-- GitHub Gist Settings -->
@@ -259,12 +259,16 @@
 
   <!-- Vanilla JS Application Engine -->
   <script>
-    const STORAGE_KEY = 'vocabmaster_db_v2';
+    const STORAGE_KEY = 'vocabmaster_db_v3';
     const GIST_FILENAME = 'vocabmaster_database.json';
     const MEMORY_PALACE_DECK = '記憶宮殿';
 
     let db = {
-      settings: { geminiApiKey: '', gistToken: '', gistId: '' },
+      settings: { 
+        geminiApiKey: 'AIzaSyAb8RN6IeWUp0vJR8ipndebpLo83IBlVzY6sL-V4WsZK', 
+        gistToken: '', 
+        gistId: '' 
+      },
       activeDeck: '全部分類',
       decks: [MEMORY_PALACE_DECK, '預設單字本'],
       words: [
@@ -299,6 +303,10 @@
       const stored = localStorage.getItem(STORAGE_KEY);
       if (stored) {
         try { db = JSON.parse(stored); } catch (e) { console.error(e); }
+      }
+      // Ensure default API key is populated if empty
+      if (!db.settings.geminiApiKey) {
+        db.settings.geminiApiKey = 'AIzaSyAb8RN6IeWUp0vJR8ipndebpLo83IBlVzY6sL-V4WsZK';
       }
     }
 
@@ -465,7 +473,6 @@
         return;
       }
 
-      // Parse terms by comma, newline or spaces
       const rawTerms = rawText.split(/[\n,]+/).map(t => t.trim()).filter(t => t.length > 0);
       if (rawTerms.length === 0) return;
 
@@ -517,7 +524,7 @@
     }
 
     async function callGeminiBatch(terms) {
-      const prompt = `Analyze these English words: ${JSON.stringify(terms)}. Return ONLY a JSON array of objects, each containing: term, pos (n./v./adj.), phonetic (IPA), meaning (Traditional Chinese), synonyms (array of 1-2 words), example (simple English sentence). No markdown.`;
+      const prompt = `Analyze these English words: ${JSON.stringify(terms)}. Return ONLY a valid JSON array of objects, each containing: term, pos (n./v./adj.), phonetic (IPA), meaning (Traditional Chinese), synonyms (array of 1-2 words), example (simple English sentence). No markdown formatting blocks.`;
       const response = await fetchWithTimeout(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${db.settings.geminiApiKey}`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
