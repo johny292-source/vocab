@@ -88,7 +88,6 @@
 
     <!-- VIEW 1: Dashboard / Decks -->
     <section id="view-dash" class="space-y-6">
-      <!-- Deck Selection Header -->
       <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 bg-slate-800/40 p-4 rounded-xl border border-slate-700/50">
         <div class="flex items-center gap-3 overflow-x-auto w-full sm:w-auto pb-2 sm:pb-0" id="deck-tab-container"></div>
         <button onclick="openModal('create-deck-modal')" class="whitespace-nowrap px-3 py-1.5 bg-slate-700 hover:bg-slate-600 text-xs font-medium rounded-lg transition flex items-center gap-1.5">
@@ -96,7 +95,6 @@
         </button>
       </div>
 
-      <!-- Word Cards Grid -->
       <div id="word-card-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"></div>
     </section>
 
@@ -114,10 +112,8 @@
           </div>
         </div>
 
-        <!-- Flashcard Wrapper -->
         <div id="srs-card-container" class="relative min-h-[320px] w-full perspective-1000 cursor-pointer" onclick="flipSrsCard()">
           <div id="srs-card-inner" class="w-full h-full min-h-[320px] transition-transform duration-500 transform-style-3d bg-slate-800 border border-slate-700 rounded-2xl p-6 flex flex-col justify-between shadow-2xl relative">
-            <!-- Front Card -->
             <div class="backface-hidden absolute inset-0 p-6 flex flex-col justify-between items-center text-center bg-slate-800 rounded-2xl">
               <span class="text-xs text-slate-500 font-mono">點擊卡片翻面</span>
               <div class="my-auto">
@@ -129,7 +125,6 @@
               </button>
             </div>
 
-            <!-- Back Card -->
             <div class="backface-hidden rotate-y-180 absolute inset-0 p-6 flex flex-col justify-between bg-slate-800 rounded-2xl text-left border border-indigo-500/30 overflow-y-auto">
               <div>
                 <div class="flex justify-between items-start mb-2">
@@ -150,7 +145,6 @@
           </div>
         </div>
 
-        <!-- Rating Buttons -->
         <div id="srs-controls" class="grid grid-cols-3 gap-3 pt-2">
           <button onclick="rateSrsWord(1)" class="py-3 bg-rose-900/40 hover:bg-rose-800/60 border border-rose-700/50 text-rose-200 rounded-xl font-semibold text-sm transition">
             重來<br><span class="text-[10px] text-rose-400 font-normal">1 天後</span>
@@ -163,7 +157,6 @@
           </button>
         </div>
 
-        <!-- Quick Move to Memory Palace -->
         <button onclick="moveCurrentSrsToPalace()" class="w-full py-2 bg-slate-800 hover:bg-slate-700 border border-slate-700 text-xs font-medium text-amber-400 rounded-lg transition flex items-center justify-center gap-1.5">
           <i class="fa-solid fa-castle"></i> 已完全掌握？一鍵移至「記憶宮殿」
         </button>
@@ -220,7 +213,6 @@
         <div class="bg-slate-900/60 p-4 rounded-xl border border-slate-700/60 space-y-2">
           <label class="block text-xs font-bold text-indigo-300 uppercase tracking-wider">Gemini API Key</label>
           <input type="password" id="setting-gemini-key" placeholder="AI Studio 取得的 API Key" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-indigo-500 font-mono text-xs">
-          <p class="text-[11px] text-slate-400">已自動預先帶入您的金鑰，您也可以在此隨時修改更新。</p>
         </div>
 
         <!-- GitHub Gist Settings -->
@@ -259,7 +251,7 @@
 
   <!-- Vanilla JS Application Engine -->
   <script>
-    const STORAGE_KEY = 'vocabmaster_db_v3';
+    const STORAGE_KEY = 'vocabmaster_db_v4';
     const GIST_FILENAME = 'vocabmaster_database.json';
     const MEMORY_PALACE_DECK = '記憶宮殿';
 
@@ -304,7 +296,6 @@
       if (stored) {
         try { db = JSON.parse(stored); } catch (e) { console.error(e); }
       }
-      // Ensure default API key is populated if empty
       if (!db.settings.geminiApiKey) {
         db.settings.geminiApiKey = 'AIzaSyAb8RN6IeWUp0vJR8ipndebpLo83IBlVzY6sL-V4WsZK';
       }
@@ -488,12 +479,11 @@
           try {
             results = await callGeminiBatch(rawTerms);
           } catch (aiErr) {
-            console.warn("API 呼叫失敗，自動啟動本地備用字典引擎", aiErr);
-            results = rawTerms.map(t => fallbackLocalWordLookup(t));
-            showToast('雲端 API 忙碌中，已自動切換本地備用引擎完成解析', 'info');
+            console.error("Gemini API Error:", aiErr);
+            throw new Error("API 連線或金鑰驗證失敗，請檢查 API Key");
           }
         } else {
-          results = rawTerms.map(t => fallbackLocalWordLookup(t));
+          throw new Error("請先設定 Gemini API Key");
         }
 
         results.forEach(w => {
@@ -516,7 +506,7 @@
         inputEl.value = '';
         showToast(`成功新增 ${results.length} 個單字至「${targetDeck}」！`, 'success');
       } catch (err) {
-        showToast('解析出錯: ' + err.message, 'error');
+        showToast('解析失敗: ' + err.message, 'error');
       } finally {
         btn.disabled = false;
         btn.innerHTML = `<i class="fa-solid fa-wand-magic-sparkles"></i> 一鍵 AI 智慧解析與加入`;
@@ -524,28 +514,30 @@
     }
 
     async function callGeminiBatch(terms) {
-      const prompt = `Analyze these English words: ${JSON.stringify(terms)}. Return ONLY a valid JSON array of objects, each containing: term, pos (n./v./adj.), phonetic (IPA), meaning (Traditional Chinese), synonyms (array of 1-2 words), example (simple English sentence). No markdown formatting blocks.`;
+      const prompt = `You are an expert English lexicographer. For each of the following English words: ${JSON.stringify(terms)}, provide accurate definitions. 
+Return ONLY a valid JSON array of objects. Do not include any markdown formatting like \`\`\`json. Each object must have these exact keys:
+- "term": string (the exact English word)
+- "pos": string (e.g. n., v., adj.)
+- "phonetic": string (e.g. /rɪˈzɪliəns/)
+- "meaning": string (Precise Traditional Chinese translation and definition)
+- "synonyms": array of strings (1-3 synonyms)
+- "example": string (a simple, natural English sentence demonstrating the word)`;
+
       const response = await fetchWithTimeout(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${db.settings.geminiApiKey}`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] })
       }, 15000);
 
+      if (!response.ok) {
+        const errData = await response.json();
+        throw new Error(errData.error?.message || `HTTP ${response.status}`);
+      }
+
       const data = await response.json();
       const text = data.candidates[0].content.parts[0].text;
       const cleanJson = text.replace(/```json/g, '').replace(/```/g, '').trim();
       return JSON.parse(cleanJson);
-    }
-
-    function fallbackLocalWordLookup(term) {
-      return {
-        term: term.toLowerCase(),
-        pos: 'n. / v.',
-        phonetic: `/${term.toLowerCase()}/`,
-        meaning: `${term} 的常用中文釋義`,
-        synonyms: ['related'],
-        example: `This sentence demonstrates the usage of ${term}.`
-      };
     }
 
     // --- Ebbinghaus SRS Logic ---
@@ -640,62 +632,39 @@
       btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> 智慧提取與分拆中...`;
 
       try {
-        const maxChunkLen = 2500;
-        const chunks = [];
-        for (let i = 0; i < text.length; i += maxChunkLen) {
-          chunks.push(text.substring(i, i + maxChunkLen));
-        }
+        const matches = text.match(/\b[A-Za-z]{6,}\b/g) || [];
+        const terms = Array.from(new Set(matches)).slice(0, 15);
+        if (terms.length === 0) throw new Error('文章中未找到合適的英文單字');
 
-        for (let idx = 0; idx < chunks.length; idx++) {
-          const deckName = chunks.length > 1 ? `${prefix} - Part ${idx + 1}` : prefix;
-          if (!db.decks.includes(deckName)) db.decks.push(deckName);
+        const wordsFound = await callGeminiBatch(terms);
+        const deckName = prefix;
+        if (!db.decks.includes(deckName)) db.decks.push(deckName);
 
-          let wordsFound = [];
-          if (db.settings.geminiApiKey) {
-            try {
-              wordsFound = await callGeminiBatch(extractTermsFromText(chunks[idx]));
-            } catch (e) {
-              wordsFound = fallbackTextExtraction(chunks[idx]);
-            }
-          } else {
-            wordsFound = fallbackTextExtraction(chunks[idx]);
-          }
-
-          wordsFound.forEach(w => {
-            db.words.unshift({
-              id: 'w_' + Date.now() + '_' + Math.random().toString(36).substr(2, 4),
-              deck: deckName,
-              term: w.term,
-              pos: w.pos || 'n.',
-              phonetic: w.phonetic || '',
-              meaning: w.meaning,
-              synonyms: w.synonyms || [],
-              example: w.example || '',
-              srsStage: 0,
-              nextReviewDate: new Date().toISOString()
-            });
+        wordsFound.forEach(w => {
+          db.words.unshift({
+            id: 'w_' + Date.now() + '_' + Math.random().toString(36).substr(2, 4),
+            deck: deckName,
+            term: w.term,
+            pos: w.pos || 'n.',
+            phonetic: w.phonetic || '',
+            meaning: w.meaning,
+            synonyms: w.synonyms || [],
+            example: w.example || '',
+            srsStage: 0,
+            nextReviewDate: new Date().toISOString()
           });
-        }
+        });
 
         saveDatabase();
         renderDecks();
         switchView('dash');
-        showToast(`成功建立單字本並提取單字！`, 'success');
+        showToast(`成功從文章提取 ${wordsFound.length} 個單字！`, 'success');
       } catch (err) {
-        showToast('提取過程出錯: ' + err.message, 'error');
+        showToast('提取出錯: ' + err.message, 'error');
       } finally {
         btn.disabled = false;
         btn.innerHTML = `<i class="fa-solid fa-wand-magic-sparkles"></i> 開始智慧提取並建立單字本`;
       }
-    }
-
-    function extractTermsFromText(textChunk) {
-      const matches = textChunk.match(/\b[A-Za-z]{6,}\b/g) || [];
-      return Array.from(new Set(matches)).slice(0, 12);
-    }
-
-    function fallbackTextExtraction(textChunk) {
-      return extractTermsFromText(textChunk).map(term => fallbackLocalWordLookup(term));
     }
 
     // --- GitHub Gist Cloud Sync ---
@@ -758,7 +727,10 @@
       showToast('正在從 Gist 下載同步資料...', 'info');
       try {
         const res = await fetchWithTimeout(`https://api.github.com/gists/${db.settings.gistId}`, { method: 'GET', headers: getAuthHeaders(db.settings.gistToken) }, 15000);
-        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        if (!res.ok) {
+          if (res.status === 401) throw new Error('HTTP 401: Token 權限不足或已過期，請檢查 Gist 權限');
+          throw new Error(`HTTP ${res.status}`);
+        }
         const data = await res.json();
         if (data.files && data.files[GIST_FILENAME]) {
           db = JSON.parse(data.files[GIST_FILENAME].content);
